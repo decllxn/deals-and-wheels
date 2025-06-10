@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant neutral (&:where([data-theme=neutral], [data-theme=neutral] *));
+
+body {
+  font-family: 'Lato', sans-serif;
+}
+
+:root {
+  /* Default fallback theme (light) */
+  --bg-color: #fdfdfd;
+  --text-color: #000000;
+  --accent-color: #e63946; /* dominant red */
+  --accent-hover: #d62828;
+  --surface-color: #ffffff;
+  --border-color: #dddddd;
+  --muted-text: #555555;
+  --highlight-color: #ffb4a2; /* warm highlight */
+}
+
+[data-theme='dark'] {
+  /* Dark Theme */
+  --bg-color: #1f1f1f;
+  --text-color: #ffffff;
+  --accent-color: #3b82f6; /* Tailwind's blue-500 */
+  --accent-hover: #2563eb; /* blue-600 */
+  --surface-color: #2a2a2a;
+  --border-color: #444444;
+  --muted-text: #bbbbbb;
+  --highlight-color: #60a5fa; /* soft blue highlight */
+}
+
+[data-theme='neutral'] {
+  /* Neutral Theme - Grayish Base */
+  --bg-color: #e6e6e6;           /* light neutral gray */
+  --text-color: #1e1e1e;         /* almost black */
+  --accent-color: #7d8597;       /* muted steel blue */
+  --accent-hover: #5c6370;       /* darker cool gray */
+  --surface-color: #f2f2f2;      /* soft card background */
+  --border-color: #cfcfcf;       /* subtle border */
+  --muted-text: #555555;
+  --highlight-color: #a29ea5;    /* soft lavender-gray */
+}
+
+html, body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+
+/* Hide scrollbar for all browsers */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer & Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.social-btn {
+  @apply text-white p-3 rounded-lg hover:opacity-80 transition;
+}
+
+@keyframes floating-icons {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-40px) scale(1.1); /* Increased distance */
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-80px) scale(1.3); /* Increased further */
+  }
+}
+
+@keyframes rotating-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-floating-icons {
+  animation: floating-icons 6s infinite ease-in-out; /* Slightly longer duration */
+}
+
+.animate-rotating-border {
+  animation: rotating-border 6s linear infinite;
+}
+
+
+
+/* ====PRELOADER ANIMATIONS==== */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-wheel {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%); opacity: 0; }
+  40% { transform: translateX(0%); opacity: 0.6; }
+  60% { transform: translateX(0%); opacity: 0.6; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes fade-in-out-short {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* In your global CSS or a relevant stylesheet */
+:root {
+  --navbar-height: 60px; /* Adjust to the actual height of your navbar */
+}
+
+
+/* 🌐 Scrollbar base style */
+.scrollbar-modern {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+/* ✅ WebKit scrollbars (Chrome, Safari) */
+.scrollbar-modern::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-track {
+  background-color: var(--scroll-track);
+  border-radius: 9999px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.3s ease;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scroll-thumb-hover);
+}
+
+/* 🌞 Light mode (soft white theme) */
+:root {
+  --scroll-track: #ffffff;
+  --scroll-thumb: #f1f5f9; /* slate-100 */
+  --scroll-thumb-hover: #e2e8f0; /* slate-200 */
+}
+
+/* 🌚 Dark mode (deep charcoal & muted gray) */
+.dark {
+  --scroll-track: #1f1f1f;
+  --scroll-thumb: #2a2a2a;
+  --scroll-thumb-hover: #3a3a3a;
+}

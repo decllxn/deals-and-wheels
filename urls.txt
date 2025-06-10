@@ -1,0 +1,72 @@
+✅ ViewSet-Based Endpoints (Slug-based lookup enabled)
+These are automatically handled by the DefaultRouter using the lookup_field = 'slug':
+
+📝 Blogs
+Method	URL	Description
+GET	/blogs/api/blogs/	List all published blogs
+GET	/blogs/api/blogs/<slug>/	Retrieve single blog by slug
+
+🏷 Categories
+Method	URL	Description
+GET	/blogs/api/categories/	List all categories
+GET	/blogs/api/categories/<slug>/	Retrieve category by slug
+
+🔖 Hashtags
+Method	URL	Description
+GET	/blogs/api/hashtags/	List all hashtags
+GET	/blogs/api/hashtags/<slug>/	Retrieve hashtag by slug
+
+🚘 Manufacturers
+Method	URL	Description
+GET	/blogs/api/manufacturers/	List all manufacturers
+GET	/blogs/api/manufacturers/<slug>/	Retrieve manufacturer by slug
+
+🛠 Custom Endpoints (manually defined)
+These are defined with @api_view or generic views:
+
+💬 Comments
+Method	URL	Description
+GET / POST	/blogs/api/comments/?blog=<id>	List or create comments for a blog (by ID)
+
+👍 Blog Likes
+Method	URL	Description
+GET	/blogs/api/blog-likes/?blog=<id>	List likes for a blog (by ID)
+
+📤 Blog Shares
+Method	URL	Description
+GET	/blogs/api/blog-shares/?blog=<id>	List shares for a blog (by ID)
+
+💗 Comment Likes
+Method	URL	Description
+GET	/blogs/api/comment-likes/?comment=<id>	List likes for a comment
+
+📌 Recommended Blogs (still ID-based)
+Method	URL	Description
+GET	/blogs/api/recommended/<int:blog_id>/	Get blog recommendations (by ID)
+
+🆕 Latest Blog
+Method	URL	Description
+GET	/blogs/api/latest/	Get the latest published blog post
+
+📰 Blog Detail (ID-based)
+Method	URL	Description
+GET	/blogs/api/details/<int:blog_id>/	Get blog detail (by ID)
+
+🔄 You can enable slug support for this by uncommenting:
+
+python
+Copy
+Edit
+path('details/slug/<slug:slug>/', blog_detail_slug, name='blog-detail-slug')
+🔁 Filtering and Search Test Examples
+You can test filtering, searching, and ordering on these endpoints:
+
+🧪 Examples:
+swift
+Copy
+Edit
+/blogs/api/blogs/?search=ferrari
+/blogs/api/blogs/?ordering=-views
+/blogs/api/blogs/?manufacturer__slug=tesla
+/blogs/api/blogs/?category__slug=sports-cars
+/blogs/api/blogs/?hashtags__slug=electric

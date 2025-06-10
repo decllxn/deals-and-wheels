@@ -1,0 +1,35 @@
+:root {
+    /* Default fallback theme (light) */
+    --bg-color: #fdfdfd;
+    --text-color: #000000;
+    --accent-color: #e63946; /* dominant red */
+    --accent-hover: #d62828;
+    --surface-color: #ffffff;
+    --border-color: #dddddd;
+    --muted-text: #555555;
+    --highlight-color: #ffb4a2; /* warm highlight */
+  }
+  
+[data-theme='dark'] {
+    /* Dark Theme */
+    --bg-color: #1f1f1f;
+    --text-color: #ffffff;
+    --accent-color: #3b82f6; /* Tailwind's blue-500 */
+    --accent-hover: #2563eb; /* blue-600 */
+    --surface-color: #2a2a2a;
+    --border-color: #444444;
+    --muted-text: #bbbbbb;
+    --highlight-color: #60a5fa; /* soft blue highlight */
+  }
+  
+  [data-theme='neutral'] {
+    /* Neutral Theme - Grayish Base */
+    --bg-color: #e6e6e6;           /* light neutral gray */
+    --text-color: #1e1e1e;         /* almost black */
+    --accent-color: #7d8597;       /* muted steel blue */
+    --accent-hover: #5c6370;       /* darker cool gray */
+    --surface-color: #f2f2f2;      /* soft card background */
+    --border-color: #cfcfcf;       /* subtle border */
+    --muted-text: #555555;
+    --highlight-color: #a29ea5;    /* soft lavender-gray */
+  }

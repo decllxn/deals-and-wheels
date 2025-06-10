@@ -1,0 +1,87 @@
+/* Custom colors: White #fff, Dark Gray #1f1f1f, Blue (replace with your blue), Red (replace with your red) */
+
+/* Example: Header */
+.unfold-header {
+    background-color: #1f1f1f !important;
+    color: #fff !important; /* Default header text color */
+}
+
+.unfold-header__title {
+    color: #fff !important;
+}
+
+.unfold-header__nav-item a {
+    color: #fff !important; /* Header navigation links */
+}
+
+/* Example: Sidebar */
+.unfold-aside {
+    background-color: #fff !important;
+    color: #1f1f1f !important; /* Default sidebar text color */
+}
+
+.unfold-aside__menu-link {
+    color: #1f1f1f !important;
+}
+
+.unfold-aside__menu-link:hover,
+.unfold-aside__menu-link.is-active {
+    background-color: your_blue_color !important; /* Replace with your blue */
+    color: #fff !important;
+}
+
+.unfold-aside__menu-item.has-children.is-open > .unfold-aside__menu-link {
+    background-color: your_blue_color !important; /* Replace with your blue */
+    color: #fff !important;
+}
+
+.unfold-aside__menu-item.has-children.is-open > .unfold-aside__menu-link:hover {
+    background-color: darken(your_blue_color, 10%) !important; /* Optional: Darken on hover */
+}
+
+/* Example: Main Content */
+.unfold-main {
+    background-color: #f9f9f9 !important; /* A very light gray */
+    color: #1f1f1f !important; /* Default text color in main content */
+}
+
+/* Example: Links in Main Content */
+.unfold-main a {
+    color: your_blue_color !important; /* Replace with your blue */
+}
+
+.unfold-main a:hover {
+    color: darken(your_blue_color, 15%) !important; /* Optional: Darken on hover */
+}
+
+/* Example: Buttons (you might need to be more specific with selectors) */
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input[type="submit"] {
+    background-color: your_blue_color !important; /* Replace with your blue */
+    color: #fff !important;
+    border-color: your_blue_color !important;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input[type="submit"]:hover {
+    background-color: darken(your_blue_color, 15%) !important; /* Optional: Darken on hover */
+    border-color: darken(your_blue_color, 15%) !important;
+}
+
+/* Example: Error/Delete Buttons (using red) */
+.deletelink-box button {
+    background-color: your_red_color !important; /* Replace with your red */
+    color: #fff !important;
+    border-color: your_red_color !important;
+}
+
+.deletelink-box button:hover {
+    background-color: darken(your_red_color, 15%) !important; /* Optional: Darken on hover */
+    border-color: darken(your_red_color, 15%) !important;
+}
+
+/* You'll likely need to add more specific rules based on your inspection of the admin panel. */
