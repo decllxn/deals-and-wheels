@@ -19,24 +19,23 @@ const SearchExperience = () => {
   ];
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false); // Corrected typo: setIsModalLopen to setIsModalOpen
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <>
       <div
-        className="relative w-full py-20 px-6 sm:px-10 flex items-center justify-center lg:justify-between gap-y-8 lg:gap-16 mt-20 overflow-hidden" // Removed flex-col to simplify positioning. Content will occupy space, image absolute.
+        className="relative w-full py-20 px-6 sm:px-10 flex flex-col lg:flex-row items-start justify-between gap-y-12 lg:gap-20 mt-20 overflow-hidden"
         style={{
           color: 'var(--text-color)',
           backgroundColor: 'var(--bg-color)',
         }}
       >
-        {/* Content Left - Always takes full width on small screens */}
+        {/* Content Left */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          // Key changes here: w-full and lg:flex-1 lg:max-w-3xl
-          className="w-full lg:flex-1 lg:max-w-3xl z-10 text-center lg:text-left"
+          className="w-full max-w-3xl text-center lg:text-left"
         >
           {/* Headline & Description */}
           <motion.div
@@ -84,7 +83,7 @@ const SearchExperience = () => {
             />
           </motion.div>
 
-          {/* Search UI (only in Find a Car view) */}
+          {/* Car View */}
           {activeView === 'Find a Car' && (
             <>
               {/* Car Type Tabs */}
@@ -185,18 +184,17 @@ const SearchExperience = () => {
           )}
         </motion.div>
 
-        {/* Image Right - Positioned for overflow */}
+        {/* Image - only visible on lg and above */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1 }}
-          // Positioning the image absolutely on small screens, relative on large
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-full max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:relative lg:top-auto lg:translate-y-0 lg:w-[50%] flex justify-end lg:justify-center"
+          className="hidden lg:flex justify-center flex-1 max-w-[480px]"
         >
           <img
             src="/red-car.png"
             alt="Search Car"
-            className="w-full object-contain max-h-[300px] sm:max-h-[350px] lg:max-h-[400px]"
+            className="w-full object-contain max-h-[400px]"
           />
         </motion.div>
 
