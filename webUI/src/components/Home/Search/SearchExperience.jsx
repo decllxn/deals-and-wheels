@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, TrendingUp } from 'lucide-react';
 import ViewTabs from './ViewTabs';
@@ -10,6 +10,7 @@ const SearchExperience = () => {
   const [carType, setCarType] = useState('New');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
 
   const popularTags = [
     { label: 'Toyota Prado' },
@@ -21,22 +22,52 @@ const SearchExperience = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+
   return (
     <>
       <div
-        className="relative w-full py-20 px-6 sm:px-10 flex flex-col lg:flex-row items-start justify-between gap-y-12 lg:gap-20 mt-20 overflow-hidden"
+        className="relative w-full py-20 px-6 sm:px-10 flex flex-col items-start justify-between gap-y-12 mt-20 overflow-hidden lg:flex-row lg:items-start lg:gap-20"
         style={{
           color: 'var(--text-color)',
           backgroundColor: 'var(--bg-color)',
         }}
       >
-        {/* Content Left */}
+        {/* Content Left (always left-aligned and now more fluid) */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full max-w-3xl text-center lg:text-left"
+          className="w-full max-w-3xl text-left relative z-10"
         >
+          {/* Image for smaller screens - now with better fluid wrapping and sizing */}
+          {!isLargeScreen && (
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1 }}
+              // Adjusting float properties for better flow
+              className="float-right ml-4 mb-4 w-5/12 max-w-[200px] sm:w-1/3 sm:max-w-[280px] md:max-w-[320px] clear-right"
+            >
+              <img
+                src="/red-car.png"
+                alt="Search Car"
+                className="w-full object-contain max-h-[160px] sm:max-h-[220px] drop-shadow-xl"
+              />
+            </motion.div>
+          )}
+
           {/* Headline & Description */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -50,19 +81,20 @@ const SearchExperience = () => {
                 : 'Real Reviews. Real Drivers.'}
             </h1>
 
-            <p className="text-base sm:text-lg mt-4 text-[var(--muted-text)] leading-relaxed">
+            {/* Added `text-wrap` for better text flow around floats */}
+            <p className="text-base sm:text-lg mt-4 text-[var(--muted-text)] leading-relaxed [text-wrap:balance]">
               {activeView === 'Find a Car'
-                ? 'At Deals & Wheels, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.'
+                ? 'At Deals&Wheels, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.'
                 : 'Browse uncensored, honest feedback from real car owners. Make smarter decisions, avoid regrets, and drive with confidence.'}
             </p>
           </motion.div>
 
-          {/* Tabs */}
+          {/* All other content remains left-aligned as before */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="mb-6 flex justify-center lg:justify-start"
+            className="mb-6 flex justify-start"
           >
             <ViewTabs
               activeView={activeView}
@@ -83,15 +115,13 @@ const SearchExperience = () => {
             />
           </motion.div>
 
-          {/* Car View */}
           {activeView === 'Find a Car' && (
             <>
-              {/* Car Type Tabs */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6 }}
-                className="mb-4 flex justify-center lg:justify-start"
+                className="mb-4 flex justify-start"
               >
                 <CarTypeTabs
                   activeType={carType}
@@ -112,12 +142,11 @@ const SearchExperience = () => {
                 />
               </motion.div>
 
-              {/* Search Bar */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.6 }}
-                className="mb-4 flex justify-center lg:justify-start"
+                className="mb-4 flex justify-start"
               >
                 <div
                   className="flex items-center rounded-full px-5 py-3 w-full max-w-md border shadow-sm"
@@ -142,13 +171,12 @@ const SearchExperience = () => {
                 </div>
               </motion.div>
 
-              {/* Popular Tags */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
               >
-                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                <div className="flex flex-wrap gap-2 justify-start">
                   {popularTags.map((tag, idx) => (
                     <button
                       key={idx}
@@ -184,7 +212,7 @@ const SearchExperience = () => {
           )}
         </motion.div>
 
-        {/* Image - only visible on lg and above */}
+        {/* Image for large screens - original positioning */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -205,6 +233,8 @@ const SearchExperience = () => {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
+        
+      <div className="absolute top-[-4rem] right-[-4rem] w-[250px] h-[250px] bg-[var(--accent-color)] rounded-full blur-3xl opacity-20 z-0" />
       </div>
 
       {/* Divider */}
