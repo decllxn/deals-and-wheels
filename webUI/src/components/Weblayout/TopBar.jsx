@@ -1,6 +1,5 @@
 import React from "react";
 import LeftButtons from "./topbar/LeftButtons";
-import Breadcrumbs from "./topbar/Breadcrumbs";
 import SeeMoreButton from "./topbar/SeeMoreButton";
 import ThemeSwitcher from "./topbar/ThemeSwitcher";
 
@@ -18,9 +17,7 @@ const TopBar = ({ onSeeMoreClick }) => {
         {/* Left Buttons */}
         <LeftButtons />
 
-        {/* Centered Breadcrumb */}
-        <Breadcrumbs />
-
+  
         {/* Right Side */}
         <div className="flex items-center space-x-2 sm:space-x-4">
           <SeeMoreButton onClick={onSeeMoreClick} />

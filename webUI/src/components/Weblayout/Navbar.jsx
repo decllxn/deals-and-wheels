@@ -8,7 +8,8 @@ import TopBar from "./TopBar";
 import ProgressBar from "./ProgressBar";
 import MobileMenu from "./MobileMenu";
 import DesktopMenu from "./DesktopMenu";
-import HamburgerMenuButton from "./HamburgerMenuButton"; // Import the Hamburger Menu Button component
+import HamburgerMenuButton from "./HamburgerMenuButton";
+import Breadcrumbs from "./topbar/Breadcrumbs"; // Import the Hamburger Menu Button component
 
 const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -17,6 +18,7 @@ const Navbar = () => {
   const [isSignUp, setIsSignUp] = useState(false);
 
   return (
+    <>
     <div className="fixed top-0 left-0 w-full z-50">
       <ProgressBar />
       <TopBar onSeeMoreClick={() => setIsSidebarOpen(true)} />
@@ -24,11 +26,10 @@ const Navbar = () => {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <nav
-        className="px-6 py-3 shadow-md border-b"
+        className="px-6 py-3 shadow-lg"
         style={{
-          backgroundColor: "var(--surface-color)",
+          backgroundColor: "var(--bg-color)",
           color: "var(--text-color)",
-          borderColor: "var(--border-color)",
         }}
       >
         <div className="max-w-screen-xl mx-auto flex justify-between items-center">
@@ -62,6 +63,7 @@ const Navbar = () => {
         setIsSignUp={setIsSignUp}
       />
     </div>
+    </>
   );
 };
 

@@ -1,26 +1,50 @@
-import React from "react";
+import React from 'react';
 
 const HamburgerMenuButton = ({ isOpen, onClick }) => {
   return (
     <button
       aria-label="Open main menu"
-      className="relative w-10 h-10 bg-transparent text-current focus:outline-none md:hidden"
+      // Removed all background and shadow classes.
+      // Used `rounded-full` for a circular hit area common for icon buttons.
+      // Added `hover:opacity-75` for a subtle visual feedback on hover.
+      className="group inline-flex w-12 h-12 text-center items-center justify-center rounded-full transition focus:outline-none md:hidden hover:opacity-75"
       onClick={onClick}
+      aria-pressed={isOpen}
+      style={{
+        // Removed `backgroundColor`. The `color` property is still set to control the SVG fill.
+        color: 'var(--text-color)', // Color of the SVG bars (inherited by fill-current)
+      }}
     >
-      <div className="w-5 h-5 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <span
-          className={`absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out
-            ${isOpen ? "rotate-45" : "-translate-y-1.5"}`}
-        />
-        <span
-          className={`absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out
-            ${isOpen ? "opacity-0" : "opacity-100"}`}
-        />
-        <span
-          className={`absolute h-0.5 w-5 bg-current transform transition duration-500 ease-in-out
-            ${isOpen ? "-rotate-45" : "translate-y-1.5"}`}
-        />
-      </div>
+      <span className="sr-only">Menu</span>
+      <svg className="w-6 h-6 fill-current pointer-events-none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        {/* Top bar */}
+        <rect
+          className={`origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] 
+            ${isOpen ? "translate-x-0 translate-y-0 rotate-[315deg]" : "-translate-y-[5px] translate-x-[7px]"}`}
+          y="7"
+          width="9"
+          height="2"
+          rx="1"
+        ></rect>
+        {/* Middle bar */}
+        <rect
+          className={`origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] 
+            ${isOpen ? "rotate-45" : ""}`}
+          y="7"
+          width="16"
+          height="2"
+          rx="1"
+        ></rect>
+        {/* Bottom bar */}
+        <rect
+          className={`origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] 
+            ${isOpen ? "translate-y-0 rotate-[135deg]" : "translate-y-[5px] translate-x-[0px]"}`}
+          y="7"
+          width="9"
+          height="2"
+          rx="1"
+        ></rect>
+      </svg>
     </button>
   );
 };
