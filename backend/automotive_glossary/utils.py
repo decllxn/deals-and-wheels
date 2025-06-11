@@ -1,34 +1,42 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import linear_kernel
 from .models import GlossaryTerm
-import numpy as np
 
 def get_content_based_recommendations(term_id, num_recommendations=5):
     """
-    Get recommendations based on content similarity using TF-IDF and Cosine Similarity.
+    Returns a list of the most similar glossary terms using TF-IDF and cosine similarity,
+    without using NumPy directly.
     """
-    # Get all glossary terms (make sure to exclude the target term itself)
-    glossary_terms = GlossaryTerm.objects.all()
+    # Retrieve all glossary terms
+    glossary_terms = list(GlossaryTerm.objects.all())
 
-    # Retrieve the target glossary term by ID
-    target_term = GlossaryTerm.objects.get(id=term_id)
-    
-    # Create a list of all glossary term definitions and titles
-    documents = [term.title + ' ' + term.definition for term in glossary_terms]
+    if not glossary_terms:
+        return []
+
+    try:
+        target_term = next(term for term in glossary_terms if term.id == term_id)
+    except StopIteration:
+        return []
+
+    # Combine title and definition for each glossary entry
+    documents = [f"{term.title} {term.definition}" for term in glossary_terms]
 
     # Initialize TF-IDF Vectorizer
     tfidf = TfidfVectorizer(stop_words='english')
-
-    # Fit and transform the documents (titles and definitions)
     tfidf_matrix = tfidf.fit_transform(documents)
 
-    # Compute cosine similarity between the target term and all other terms
+    # Use linear_kernel from scikit-learn (faster + no NumPy dependency in your code)
+    cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+    # Get index of the target term
     target_index = glossary_terms.index(target_term)
-    cosine_sim = cosine_similarity(tfidf_matrix[target_index], tfidf_matrix).flatten()
 
-    # Get the indices of the most similar glossary terms
-    similar_indices = cosine_sim.argsort()[:-num_recommendations-1:-1]
+    # Pair each similarity score with its index
+    similarity_scores = list(enumerate(cosine_similarities[target_index]))
 
-    # Return the most similar glossary terms
-    recommendations = [glossary_terms[i] for i in similar_indices if i != target_index]
-    return recommendations
+    # Sort scores in descending order, exclude self-match
+    sorted_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    top_indices = [i for i, score in sorted_scores if i != target_index][:num_recommendations]
+
+    # Return the top matching glossary terms
+    return [glossary_terms[i] for i in top_indices]
