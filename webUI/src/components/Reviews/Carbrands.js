@@ -1,4 +1,4 @@
-const kenyaCarBrands = [
+export const kenyaCarBrands = [
     { name: "Toyota", logoSrc: "/Brand_logos/toyota.png" },
     { name: "Nissan", logoSrc: "/Brand_logos/nissan.png" },
     { name: "Honda", logoSrc: "/Brand_logos/honda.png" },
@@ -26,7 +26,7 @@ const kenyaCarBrands = [
     { name: "Mahindra", logoSrc: "/Brand_logos/mahindra.png" },
     { name: "Jaguar", logoSrc: "/Brand_logos/jaguar.png" },
     { name: "Ferrari", logoSrc: "/Brand_logos/ferrari.png" },
-    { name: "Lamborghini", logoSrc: "/Brand_logos/lamborghini.png" },
+    { name: "Lamborghini", logoSrc: "/Brand_logos/lamborghini.svg" },
     { name: "Bentley", logoSrc: "/Brand_logos/bentley.png" },
     { name: "Rolls-Royce", logoSrc: "/Brand_logos/rollsroyce.jpg" },
     { name: "SsangYong", logoSrc: "/Brand_logos/ssangyong.png" },
@@ -39,46 +39,55 @@ const kenyaCarBrands = [
   ];
   
   
-  const performanceBrands = [
-    {
-      brand: "Mercedes-Benz",
-      subBrands: ["AMG"]
-    },
-    {
-      brand: "BMW",
-      subBrands: ["M", "Alpina"]
-    },
-    {
-      brand: "Audi",
-      subBrands: ["RS"]
-    },
-    {
-      brand: "Lexus",
-      subBrands: ["F Sport"]
-    },
-    {
-      brand: "Toyota",
-      subBrands: ["GR"]
-    },
-    {
-      brand: "Nissan",
-      subBrands: ["Nismo"]
-    },
-    {
-      brand: "Volkswagen",
-      subBrands: ["R"]
-    },
-    {
-      brand: "Porsche",
-      subBrands: ["Turbo"]
-    },
-    {
-      brand: "Hyundai",
-      subBrands: ["N"]
-    },
-    {
-      brand: "Kia",
-      subBrands: ["GT"]
-    }
-  ];
-  
+const performanceBrands = [
+  {
+    brand: "Mercedes-Benz",
+    logoSrc: "/Brand_logos/amg.png",
+    subBrands: ["AMG"]
+  },
+  {
+    brand: "BMW",
+    logoSrc: "/Brand_logos/m.png", // Or use "alpina.png" if available
+    subBrands: ["M", "Alpina"]
+  },
+  {
+    brand: "Audi",
+    logoSrc: "/Brand_logos/rs.png",
+    subBrands: ["RS"]
+  },
+  {
+    brand: "Lexus",
+    logoSrc: "/Brand_logos/f-sport.png",
+    subBrands: ["F Sport"]
+  },
+  {
+    brand: "Toyota",
+    logoSrc: "/Brand_logos/gr.png",
+    subBrands: ["GR"]
+  },
+  {
+    brand: "Nissan",
+    logoSrc: "/Brand_logos/nismo.png",
+    subBrands: ["Nismo"]
+  },
+  {
+    brand: "Volkswagen",
+    logoSrc: "/Brand_logos/r.png",
+    subBrands: ["R"]
+  },
+  {
+    brand: "Porsche",
+    logoSrc: "/Brand_logos/turbo.png",
+    subBrands: ["Turbo"]
+  },
+  {
+    brand: "Hyundai",
+    logoSrc: "/Brand_logos/n.png",
+    subBrands: ["N"]
+  },
+  {
+    brand: "Kia",
+    logoSrc: "/Brand_logos/gt.png",
+    subBrands: ["GT"]
+  }
+];

@@ -21,15 +21,10 @@ from news_articles.models import NewsItem
 from news_articles.serializers import NewsItemSerializer
 
 from reviews.models import Review
-from reviews.serializers import ReviewSerializer
+from reviews.serializers import ReviewListSerializer  # ✅ updated import
 
 
 class ManufacturerViewSet(viewsets.ModelViewSet):
-    """
-    Handles listing, retrieving, creating, updating, and deleting manufacturers.
-    Uses slug instead of ID for detail lookups.
-    Adds a custom action to get blogs related to a manufacturer.
-    """
     queryset = Manufacturer.objects.all().order_by("name")
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -38,7 +33,7 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
     ordering_fields = ['name', 'founded_year', 'created_at']
     ordering = ['name']
     
-    lookup_field = 'slug'  # 🔥 This enables /api/<slug>/ instead of /api/<id>/
+    lookup_field = 'slug'
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -49,10 +44,6 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='blogs')
     def blogs(self, request, slug=None):
-        """
-        Returns blogs related to this manufacturer.
-        Example: GET /manufacturers/api/ferrari/blogs/
-        """
         manufacturer = self.get_object()
         blogs = Blog.objects.filter(manufacturer=manufacturer, is_published=True)
         serializer = BlogSerializer(blogs, many=True, context={'request': request})
@@ -60,21 +51,13 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='listings')
     def listings(self, request, slug=None):
-        """
-        Returns car listings related to this manufacturer.
-        Example: GET /manufacturers/api/ferrari/listings/
-        """
         manufacturer = self.get_object()
         listings = CarListing.objects.filter(manufacturer=manufacturer)
         serializer = CarListingSerializer(listings, many=True, context={'request': request})
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=['get'], url_path='news')
     def news(self, request, slug=None):
-        """
-        Returns news articles related to this manufacturer.
-        Example: GET /manufacturers/api/ferrari/news/
-        """
         manufacturer = self.get_object()
         news_items = NewsItem.objects.filter(manufacturer=manufacturer).order_by('-published_at')
         serializer = NewsItemSerializer(news_items, many=True, context={'request': request})
@@ -82,11 +65,7 @@ class ManufacturerViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='reviews')
     def reviews(self, request, slug=None):
-        """
-        Returns reviews related to this manufacturer.
-        Example: GET /manufacturers/api/ferrari/reviews/
-        """
         manufacturer = self.get_object()
         reviews = Review.objects.filter(manufacturer=manufacturer).order_by('-created_at')
-        serializer = ReviewSerializer(reviews, many=True, context={'request': request})
+        serializer = ReviewListSerializer(reviews, many=True, context={'request': request})  # ✅ updated
         return Response(serializer.data)
