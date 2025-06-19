@@ -81,12 +81,24 @@ const SearchExperience = () => {
                 : 'Real Reviews. Real Drivers.'}
             </h1>
 
-            {/* Added `text-wrap` for better text flow around floats */}
             <p className="text-base sm:text-lg mt-4 text-[var(--muted-text)] leading-relaxed [text-wrap:balance]">
-              {activeView === 'Find a Car'
-                ? 'At Deals&Wheels, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.'
-                : 'Browse uncensored, honest feedback from real car owners. Make smarter decisions, avoid regrets, and drive with confidence.'}
+            {activeView === 'Find a Car' ? (
+            <>
+                At <span className="font-bold text-[var(--text-color)]">Deals
+                <span className="text-[var(--accent-color)]">&</span>
+                Wheels
+                </span>, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.
+              </>
+            ) : (
+            <>
+                Browse uncensored, honest feedback from real car owners. Make smarter decisions, avoid regrets, and drive with confidence at <span className="font-bold text-[var(--text-color)]">Deals
+                <span className="text-[var(--accent-color)]">&</span>
+                Wheels
+                </span>.
+            </>
+            )}
             </p>
+
           </motion.div>
 
           {/* All other content remains left-aligned as before */}
@@ -235,10 +247,10 @@ const SearchExperience = () => {
         />
         
       <div className="absolute top-[-4rem] right-[-4rem] w-[250px] h-[250px] bg-[var(--accent-color)] rounded-full blur-3xl opacity-20 z-0" />
+      <hr className="mt-16 border-t border-[color:var(--border-color)]" />
       </div>
 
       {/* Divider */}
-      <div className="w-full h-px mb-10 bg-gradient-to-r from-transparent via-[var(--border-color)] to-transparent" />
     </>
   );
 };

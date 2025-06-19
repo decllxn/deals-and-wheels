@@ -334,6 +334,7 @@ CKEDITOR_5_CONFIGS = {
                 'imageUpload'
             ]
         },
+        'html_purify': False,
         'fontColor': {
             'colors': [
                 {'color': 'hsl(0, 0%, 0%)', 'label': 'Black', 'hasBorder': True},  # Default color

@@ -23,6 +23,8 @@ const ManufacturerPage = lazy(() => import("./pages/manufacturer/ManufacturerPag
 const ManufacturerListPage = lazy(() => import("./pages/manufacturer/ManufacturerListPage.jsx"));
 const UsedCarsPage = lazy(() => import("./pages/UsedCarsPage.jsx"));
 const UsedCarDetailsPage = lazy(() => import("./pages/UsedCarDetailsPage.jsx"));
+const ReviewsPage = lazy(() => import("./pages/ReviewsPage.jsx"));
+const ReviewsDetails = lazy(() => import("./pages/ReviewsDetails.jsx"));
 
 
 const ScrollToTop = () => {
@@ -53,6 +55,9 @@ const App = () => {
           <Route path="/editorial" element={<Editorial />} />
           <Route path="/buy-a-car" element={<BuyCar />} />
           <Route path="/car-finder" element={<CarQuizPage />} />
+
+          <Route path="/editorial/reviews" element={<ReviewsPage />} />
+          <Route path="/editorial/reviews/:slug" element={<ReviewsDetails />} />
 
           <Route path="/deals" element={<UsedCarsPage />} />
           <Route path="/deals/:slug" element={<UsedCarDetailsPage />} />

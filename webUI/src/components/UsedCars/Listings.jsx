@@ -29,7 +29,7 @@ const Listings = ({ filtersOpen }) => {
       {cars.map(car => {
         const slug = createCarSlug(car);
         return (
-          <Link key={car.id} to={`/used-cars/${slug}`}>
+          <Link key={car.id} to={`/deals/${slug}`}>
             <Card car={car} />
           </Link>
         );

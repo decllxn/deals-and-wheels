@@ -1,0 +1,95 @@
+/* === Review Styling === */
+
+.review-content h2 {
+  font-size: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.review-content h3 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.review-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.review-content ul {
+  margin-left: 1.5rem;
+  list-style-type: disc;
+  color: var(--text-color);
+}
+
+.review-content ul li {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.review-content p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+  color: var(--text-color);
+}
+
+.review-content a {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.review-content a:hover {
+  color: var(--accent-hover);
+}
+
+.review-content img {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  margin: 1.5rem 0;
+  object-fit: cover;
+}
+
+.review-content blockquote {
+  background-color: #f4f4f4;
+  padding: 1.25rem 1.5rem;
+  border-left: 4px solid var(--accent-color);
+  margin: 2rem 0;
+  font-style: italic;
+  color: #555;
+  font-size: 1.05rem;
+}
+
+.review-content span[style*="color:#777"] {
+  color: #777 !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .review-content h2 {
+    font-size: 1.75rem;
+  }
+
+  .review-content h3 {
+    font-size: 1.3rem;
+  }
+
+  .review-content p,
+  .review-content ul li {
+    font-size: 1rem;
+  }
+}

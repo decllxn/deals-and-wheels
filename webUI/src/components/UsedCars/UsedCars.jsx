@@ -4,6 +4,8 @@ import Listings from './Listings';
 import { FiFilter, FiX } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import UsedCarsHero from './UsedCarsHero';  // <-- added here
+import Breadcrumbs from '../Weblayout/topbar/Breadcrumbs';
+
 
 const UsedCars = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);

@@ -29,6 +29,7 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['created_at']
     ordering = ['-created_at']
     search_fields = ['title', 'content']
+    lookup_field = 'slug'
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

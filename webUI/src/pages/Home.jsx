@@ -9,6 +9,7 @@ import ListingGrid from "../components/Home/ListingGrid";
 import ExploreCars from "../components/Home/Explore/ExploreCars";
 import WhyDealsAndWheels from "../components/Weblayout/WhyDealsAndWheels";
 import Footer from "../components/Weblayout/Footer";
+import Breadcrumbs from "../components/Weblayout/topbar/Breadcrumbs";
 
 const Home = () => {
   return (

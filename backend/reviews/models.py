@@ -42,7 +42,7 @@ class Review(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     title = models.CharField(max_length=200)
     summary = models.TextField(blank=True)
-    content = CKEditor5Field(config_name='default')
+    content = CKEditor5Field(config_name='extends')
     created_at = models.DateTimeField(auto_now_add=True)
     published_at = models.DateTimeField(null=True, blank=True)
     overall_rating = models.PositiveIntegerField(default=5)

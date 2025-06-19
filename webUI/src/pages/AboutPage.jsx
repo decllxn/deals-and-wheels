@@ -1,19 +1,12 @@
-import React from "react";
-import Navbar from "../components/Weblayout/Navbar";
+import PageWrapper from "../components/Weblayout/PageWrapper";
 import About from "../components/About/About";
-import WhyDealsAndWheels from "../components/Weblayout/WhyDealsAndWheels";
-import Footer from "../components/Weblayout/Footer";
-
 
 const AboutPage = () => {
-    return (
-        <div>
-            <Navbar />
-            <About />
-            <WhyDealsAndWheels />
-            <Footer />
-        </div>
-    )
-}
+  return (
+    <PageWrapper>
+      <About />
+    </PageWrapper>
+  );
+};
 
 export default AboutPage;
