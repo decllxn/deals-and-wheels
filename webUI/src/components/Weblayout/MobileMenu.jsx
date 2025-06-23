@@ -21,6 +21,7 @@ const itemVariants = {
 };
 
 const MobileMenu = ({ isOpen, setIsOpen, setShowAuthModal }) => {
+  // Prevent scrolling when mobile menu is open
   React.useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : '';
     return () => {
@@ -38,17 +39,17 @@ const MobileMenu = ({ isOpen, setIsOpen, setShowAuthModal }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-opacity-50 z-30 md:hidden"
+            className="fixed inset-0 bg-opacity-40 z-30 min-[1113px]:hidden"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Mobile Menu Content */}
+          {/* Slide-out Mobile Menu */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="md:hidden fixed top-[6.5rem] bottom-0 right-0 w-3/4 max-w-sm bg-[var(--bg-color)] shadow-lg z-40 overflow-y-auto no-scrollbar"
+            className="fixed top-[6.5rem] bottom-0 right-0 w-3/4 max-w-sm bg-[var(--bg-color)] shadow-lg z-40 overflow-y-auto no-scrollbar min-[1113px]:hidden"
           >
             <motion.div
               className="flex flex-col items-start py-5 px-6 space-y-6"
@@ -56,7 +57,7 @@ const MobileMenu = ({ isOpen, setIsOpen, setShowAuthModal }) => {
               initial="hidden"
               animate="visible"
             >
-              {/* Links */}
+              {/* Menu Links */}
               {[
                 { to: "/deals", label: "Browse Cars" },
                 { to: "/dealers", label: "For Dealers" },
@@ -77,9 +78,12 @@ const MobileMenu = ({ isOpen, setIsOpen, setShowAuthModal }) => {
               ))}
 
               {/* Divider */}
-              <motion.div className="w-full h-px bg-[var(--border-color)] my-4" variants={itemVariants} />
+              <motion.div
+                className="w-full h-px bg-[var(--border-color)] my-4"
+                variants={itemVariants}
+              />
 
-              {/* Post Your Car Button */}
+              {/* Post Car CTA */}
               <motion.div variants={itemVariants}>
                 <Link
                   to="/sell-a-car"

@@ -27,9 +27,13 @@ const SearchExperience = () => {
       setIsLargeScreen(window.innerWidth >= 1024);
     };
 
+    // Set initial size
     checkScreenSize();
+
+    // Add event listener for resize
     window.addEventListener('resize', checkScreenSize);
 
+    // Clean up event listener on component unmount
     return () => {
       window.removeEventListener('resize', checkScreenSize);
     };
@@ -38,18 +42,18 @@ const SearchExperience = () => {
   return (
     <>
       <div
-        className="relative w-full py-20 px-6 sm:px-10 flex flex-col items-start justify-between gap-y-12 mt-20 overflow-hidden lg:flex-row lg:items-start lg:gap-20"
+        className="relative w-full py-16 px-6 sm:px-10 flex flex-col items-start justify-between gap-y-12 mt-16 overflow-hidden lg:flex-row lg:items-center lg:gap-20 lg:py-24"
         style={{
           color: 'var(--text-color)',
           backgroundColor: 'var(--bg-color)',
         }}
       >
-        {/* Content Left (always left-aligned and now more fluid) */}
+        {/* Content Left */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full max-w-3xl text-left relative z-10"
+          className="w-full max-w-3xl text-left relative z-10 lg:w-1/2"
         >
           {/* Image for smaller screens - now with better fluid wrapping and sizing */}
           {!isLargeScreen && (
@@ -57,13 +61,14 @@ const SearchExperience = () => {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1 }}
-              // Adjusting float properties for better flow
-              className="float-right ml-4 mb-4 w-5/12 max-w-[200px] sm:w-1/3 sm:max-w-[280px] md:max-w-[320px] clear-right"
+              // Increased sizes for smaller screens, ensuring visibility
+              className="float-right ml-4 mb-4 w-6/12 max-w-[250px] sm:w-1/3 sm:max-w-[320px] md:max-w-[380px] clear-right"
             >
               <img
                 src="/red-car.png"
                 alt="Search Car"
-                className="w-full object-contain max-h-[160px] sm:max-h-[220px] drop-shadow-xl"
+                // Adjusted max-h to prevent it from becoming too small
+                className="w-full object-contain max-h-[180px] sm:max-h-[260px] md:max-h-[300px] drop-shadow-xl"
               />
             </motion.div>
           )}
@@ -82,23 +87,22 @@ const SearchExperience = () => {
             </h1>
 
             <p className="text-base sm:text-lg mt-4 text-[var(--muted-text)] leading-relaxed [text-wrap:balance]">
-            {activeView === 'Find a Car' ? (
-            <>
-                At <span className="font-bold text-[var(--text-color)]">Deals
-                <span className="text-[var(--accent-color)]">&</span>
-                Wheels
-                </span>, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.
-              </>
-            ) : (
-            <>
-                Browse uncensored, honest feedback from real car owners. Make smarter decisions, avoid regrets, and drive with confidence at <span className="font-bold text-[var(--text-color)]">Deals
-                <span className="text-[var(--accent-color)]">&</span>
-                Wheels
-                </span>.
-            </>
-            )}
+              {activeView === 'Find a Car' ? (
+                <>
+                  At <span className="font-bold text-[var(--text-color)]">Deals
+                  <span className="text-[var(--accent-color)]">&</span>
+                  Wheels
+                  </span>, we simplify your journey to owning the perfect car. Browse thousands of new and used vehicles from verified dealers and private sellers.
+                </>
+              ) : (
+                <>
+                  Browse uncensored, honest feedback from real car owners. Make smarter decisions, avoid regrets, and drive with confidence at <span className="font-bold text-[var(--text-color)]">Deals
+                  <span className="text-[var(--accent-color)]">&</span>
+                  Wheels
+                  </span>.
+                </>
+              )}
             </p>
-
           </motion.div>
 
           {/* All other content remains left-aligned as before */}
@@ -161,7 +165,7 @@ const SearchExperience = () => {
                 className="mb-4 flex justify-start"
               >
                 <div
-                  className="flex items-center rounded-full px-5 py-3 w-full max-w-md border shadow-sm"
+                  className="flex items-center rounded-full px-5 py-3 w-full max-w-md border shadow-sm focus-within:ring-2 focus-within:ring-[var(--accent-color)]"
                   style={{
                     backgroundColor: 'var(--surface-color)',
                     borderColor: 'var(--border-color)',
@@ -177,7 +181,7 @@ const SearchExperience = () => {
                     value={searchQuery}
                     onFocus={openModal}
                     readOnly
-                    className="flex-1 bg-transparent outline-none text-sm"
+                    className="flex-1 bg-transparent outline-none text-sm placeholder-[var(--muted-text)]"
                     style={{ color: 'var(--text-color)' }}
                   />
                 </div>
@@ -196,7 +200,7 @@ const SearchExperience = () => {
                         setSearchQuery(tag.label);
                         openModal();
                       }}
-                      className="flex items-center text-[10px] px-3 py-1 rounded-full border transition"
+                      className="flex items-center text-[10px] px-3 py-1 rounded-full border transition-all duration-200 ease-in-out hover:shadow-md"
                       style={{
                         backgroundColor: 'var(--surface-color)',
                         color: 'var(--text-color)',
@@ -224,17 +228,19 @@ const SearchExperience = () => {
           )}
         </motion.div>
 
-        {/* Image for large screens - original positioning */}
+        {/* Image for large screens - original positioning, adjusted max-width */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1 }}
-          className="hidden lg:flex justify-center flex-1 max-w-[480px]"
+          // Ensure it takes up appropriate space and is centered
+          className="hidden lg:flex justify-center flex-1 max-w-[550px] lg:w-1/2" 
         >
           <img
             src="/red-car.png"
             alt="Search Car"
-            className="w-full object-contain max-h-[400px]"
+            // Increased max-h for large screens to ensure it's prominently visible
+            className="w-full object-contain max-h-[450px] drop-shadow-xl" 
           />
         </motion.div>
 
@@ -245,12 +251,12 @@ const SearchExperience = () => {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
-        
-      <div className="absolute top-[-4rem] right-[-4rem] w-[250px] h-[250px] bg-[var(--accent-color)] rounded-full blur-3xl opacity-20 z-0" />
-      <hr className="mt-16 border-t border-[color:var(--border-color)]" />
-      </div>
 
-      {/* Divider */}
+        {/* Background blur element */}
+        <div className="absolute top-[-4rem] right-[-4rem] w-[250px] h-[250px] bg-[var(--accent-color)] rounded-full blur-3xl opacity-20 z-0" />
+      </div>
+      {/* Divider - moved outside the main div for clear separation if it's meant to be a full-width line */}
+      <hr className="border-t border-[color:var(--border-color)] mx-6 sm:mx-10 lg:mx-20" />
     </>
   );
 };

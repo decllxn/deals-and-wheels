@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
-import { FaCar, FaWallet, FaUserTie, FaPhone, FaPlus } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import ProfileDropdown from "./ProfileDropdown";
 
 const DesktopMenu = ({ setShowAuthModal }) => {
   return (
-    <div className="hidden md:flex space-x-6 items-center">
-
+    <div className="hidden min-[1113px]:flex space-x-6 items-center">
       <Link to="/deals" className="nav-link hover:text-[var(--accent-color)] transition">Browse Cars</Link>
       <Link to="/dealers" className="nav-link hover:text-[var(--accent-color)] transition">For Dealers</Link>
       <Link to="/finance" className="nav-link hover:text-[var(--accent-color)] transition">Finance</Link>
