@@ -1,4 +1,5 @@
 import FeaturedListings from "@/components/FeaturedListings";
+import QuickFilters from "@/components/QuickFilters";
 import SearchBar from "@/components/SearchBar";
 import { Colors } from "@/constants/Colors";
 import { ScrollView, useColorScheme, View } from "react-native";
@@ -26,6 +27,7 @@ export default function SearchScreen() {
         <View className="px-4 pt-2">
           <SearchBar />
         </View>
+        <QuickFilters />
         <FeaturedListings />
       </ScrollView>
     </SafeAreaView>

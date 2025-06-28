@@ -1,14 +1,13 @@
-import { Tabs } from "expo-router";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import {
-  Platform,
-  Pressable,
-  GestureResponderEvent,
-  View,
-} from "react-native";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import type { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
+import { Tabs } from "expo-router";
+import {
+  GestureResponderEvent,
+  Platform,
+  Pressable
+} from "react-native";
 
 export default function TabLayout() {
   const theme = useColorScheme();
