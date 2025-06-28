@@ -1,18 +1,21 @@
-// components/FiltersModal.tsx
-import PriceRangeSlider from "@/components/FilterComponents/PriceRangeSlider";
-import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-    Platform,
-    Pressable,
-    ScrollView,
-    Text,
-    View,
-    useColorScheme,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+  useColorScheme,
 } from "react-native";
 import Modal from "react-native-modal";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import PriceRangeSlider from "@/components/FilterComponents/PriceRangeSlider";
+import SortByModal from "@/components/FilterComponents/SortByModal";
+import VehicleAttributes from "@/components/FilterComponents/VehicleAttributes";
+import VehicleTypeSelector from "@/components/FilterComponents/VehicleTypeSelector";
+import { Colors } from "@/constants/Colors";
 
 interface Props {
   visible: boolean;
@@ -23,10 +26,26 @@ export default function FiltersModal({ visible, onClose }: Props) {
   const theme = useColorScheme() || "light";
   const colorTheme = Colors[theme];
 
+  // Filters state
   const [sortOption, setSortOption] = useState("Relevance");
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    500000, 5000000,
-  ]);
+  const [sortByModalVisible, setSortByModalVisible] = useState(false);
+  const [priceRange, setPriceRange] = useState<[number, number]>([500000, 5000000]);
+  const [vehicleType, setVehicleType] = useState<string | null>(null);
+  const [makes, setMakes] = useState<string[]>([]);
+  const [yearRange, setYearRange] = useState<[number, number]>([2010, new Date().getFullYear()]);
+  const [transmission, setTransmission] = useState<string | null>(null);
+
+  const handleApply = () => {
+    console.log("Filters:", {
+      sortOption,
+      priceRange,
+      vehicleType,
+      makes,
+      yearRange,
+      transmission,
+    });
+    onClose();
+  };
 
   return (
     <Modal
@@ -41,32 +60,21 @@ export default function FiltersModal({ visible, onClose }: Props) {
       animationOut="slideOutDown"
       animationInTiming={350}
       animationOutTiming={250}
-      style={{
-        margin: 0,
-        justifyContent: "flex-end",
-        zIndex: 9999,
-      }}
+      style={{ margin: 0, justifyContent: "flex-end", zIndex: 9000 }}
     >
       <SafeAreaView
         edges={["bottom", "left", "right", "top"]}
         style={{
           flex: 1,
           backgroundColor: colorTheme.surface,
-          paddingTop: 48,
+          paddingTop: 10,
           paddingHorizontal: 20,
           paddingBottom: 32,
-          zIndex: 9999,
         }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-4">
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "bold",
-              color: colorTheme.text,
-            }}
-          >
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 16 }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", color: colorTheme.text }}>
             All Filters
           </Text>
           <Pressable onPress={onClose}>
@@ -74,31 +82,66 @@ export default function FiltersModal({ visible, onClose }: Props) {
           </Pressable>
         </View>
 
-        {/* Filter Content */}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
-        >
-          <View className="space-y-8">
+        {/* Scrollable Filter Content */}
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+          <View style={{ gap: 24 }}>
+            
+            {/* Sort By */}
+            <Pressable
+              onPress={() => setSortByModalVisible(true)}
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingVertical: 4,
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "500", color: colorTheme.text }}>
+                Sort By
+              </Text>
+              <Text style={{ fontSize: 16, fontWeight: "600", color: colorTheme.accent }}>
+                {sortOption}
+              </Text>
+            </Pressable>
+
+            {/* Divider */}
+            <View
+              style={{
+                height: 1,
+                backgroundColor: colorTheme.border,
+                opacity: 0.6,
+              }}
+            />
+
+            {/* Price Range */}
             <PriceRangeSlider
               min={500000}
               max={5000000}
               values={priceRange}
               onChange={setPriceRange}
             />
+
+            {/* Vehicle Type */}
+            <VehicleTypeSelector
+              selected={vehicleType}
+              onSelect={setVehicleType}
+            />
+
+            {/* Vehicle Attributes */}
+            <VehicleAttributes
+              makes={makes}
+              onChangeMakes={setMakes}
+              yearRange={yearRange}
+              onChangeYear={setYearRange}
+              transmission={transmission}
+              onChangeTrans={setTransmission}
+            />
           </View>
         </ScrollView>
 
-        {/* Apply Button */}
+        {/* Apply Filters Button */}
         <Pressable
-          onPress={() => {
-            // Handle filter submission here
-            console.log("Filters:", {
-              sortOption,
-              priceRange,
-            });
-            onClose();
-          }}
+          onPress={handleApply}
           style={{
             position: "absolute",
             bottom: Platform.OS === "ios" ? 32 : 20,
@@ -111,16 +154,18 @@ export default function FiltersModal({ visible, onClose }: Props) {
             marginBottom: 6,
           }}
         >
-          <Text
-            style={{
-              color: "#fff",
-              fontWeight: "600",
-              fontSize: 16,
-            }}
-          >
+          <Text style={{ color: "#fff", fontWeight: "600", fontSize: 16 }}>
             Apply Filters
           </Text>
         </Pressable>
+
+        {/* Sort By Modal */}
+        <SortByModal
+          visible={sortByModalVisible}
+          selected={sortOption}
+          onSelect={setSortOption}
+          onClose={() => setSortByModalVisible(false)}
+        />
       </SafeAreaView>
     </Modal>
   );

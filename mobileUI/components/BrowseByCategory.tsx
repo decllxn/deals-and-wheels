@@ -1,21 +1,21 @@
+import { Colors } from "@/constants/Colors";
 import React from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
   Dimensions,
   Image,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
 } from "react-native";
-import { useColorScheme } from "react-native";
-import { Colors } from "@/constants/Colors";
 
 // 🖼️ Import category PNGs
-import SedanPng from "@/assets/images/Sedan.png";
-import CoupePng from "@/assets/images/Coupe.png";
-import PickupPng from "@/assets/images/pickup-truck.png";
-import HatchbackPng from "@/assets/images/hatchback.png";
-import SuvPng from "@/assets/images/SUV.png";
 import ConvertiblePng from "@/assets/images/Convertible.png"; // ✅ Added
+import CoupePng from "@/assets/images/Coupe.png";
+import HatchbackPng from "@/assets/images/hatchback.png";
+import PickupPng from "@/assets/images/pickup-truck.png";
+import SedanPng from "@/assets/images/Sedan.png";
+import SuvPng from "@/assets/images/SUV.png";
 
 const categories = [
   {
@@ -105,6 +105,7 @@ export default function BrowseByCategory() {
                   width: 36,
                   height: 36,
                   resizeMode: "contain",
+                  tintColor: theme === "dark" ? "#FFFFFF" : undefined,
                 }}
               />
             </View>
