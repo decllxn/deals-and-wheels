@@ -11,6 +11,8 @@ import {
 import Modal from "react-native-modal";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import EcoFriendlySelector from "@/components/FilterComponents/EcoFriendlySelector";
+import FeatureSelector from "@/components/FilterComponents/FeatureSelector";
 import PriceRangeSlider from "@/components/FilterComponents/PriceRangeSlider";
 import SortByModal from "@/components/FilterComponents/SortByModal";
 import VehicleAttributes from "@/components/FilterComponents/VehicleAttributes";
@@ -26,23 +28,26 @@ export default function FiltersModal({ visible, onClose }: Props) {
   const theme = useColorScheme() || "light";
   const colorTheme = Colors[theme];
 
-  // Filters state
   const [sortOption, setSortOption] = useState("Relevance");
   const [sortByModalVisible, setSortByModalVisible] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 5000000]);
   const [vehicleType, setVehicleType] = useState<string | null>(null);
+  const [ecoType, setEcoType] = useState<string | null>(null);
   const [makes, setMakes] = useState<string[]>([]);
   const [yearRange, setYearRange] = useState<[number, number]>([2010, new Date().getFullYear()]);
   const [transmission, setTransmission] = useState<string | null>(null);
+  const [features, setFeatures] = useState<string[]>([]); // ✅ new state
 
   const handleApply = () => {
     console.log("Filters:", {
       sortOption,
       priceRange,
       vehicleType,
+      ecoType,
       makes,
       yearRange,
       transmission,
+      features, // ✅ include in filters
     });
     onClose();
   };
@@ -51,8 +56,6 @@ export default function FiltersModal({ visible, onClose }: Props) {
     <Modal
       isVisible={visible}
       onBackdropPress={onClose}
-      onSwipeComplete={onClose}
-      swipeDirection="down"
       backdropOpacity={0}
       coverScreen
       statusBarTranslucent
@@ -82,7 +85,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
           </Pressable>
         </View>
 
-        {/* Scrollable Filter Content */}
+        {/* Filter Content */}
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
           <View style={{ gap: 24 }}>
             
@@ -104,14 +107,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
               </Text>
             </Pressable>
 
-            {/* Divider */}
-            <View
-              style={{
-                height: 1,
-                backgroundColor: colorTheme.border,
-                opacity: 0.6,
-              }}
-            />
+            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
 
             {/* Price Range */}
             <PriceRangeSlider
@@ -121,11 +117,23 @@ export default function FiltersModal({ visible, onClose }: Props) {
               onChange={setPriceRange}
             />
 
+            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+
             {/* Vehicle Type */}
             <VehicleTypeSelector
               selected={vehicleType}
               onSelect={setVehicleType}
             />
+
+            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+
+            {/* Eco Friendly */}
+            <EcoFriendlySelector
+              selected={ecoType}
+              onChange={setEcoType}
+            />
+
+            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
 
             {/* Vehicle Attributes */}
             <VehicleAttributes
@@ -136,6 +144,11 @@ export default function FiltersModal({ visible, onClose }: Props) {
               transmission={transmission}
               onChangeTrans={setTransmission}
             />
+
+            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+
+            {/* ✅ Feature Selector */}
+            <FeatureSelector selected={features} onChange={setFeatures} />
           </View>
         </ScrollView>
 
@@ -159,7 +172,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
           </Text>
         </Pressable>
 
-        {/* Sort By Modal */}
+        {/* Sort Modal */}
         <SortByModal
           visible={sortByModalVisible}
           selected={sortOption}
