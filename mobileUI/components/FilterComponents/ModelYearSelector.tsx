@@ -1,55 +1,44 @@
-// components/FilterComponents/PriceRangeSlider.tsx
 import { Colors } from "@/constants/Colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import React from "react";
-import { Text, useColorScheme, View } from "react-native";
+import { Text, View, useColorScheme } from "react-native";
 
 interface Props {
-  min: number;
-  max: number;
-  values: [number, number];
-  onChange: (range: [number, number]) => void;
+  yearRange: [number, number];
+  onChangeYear: (range: [number, number]) => void;
 }
 
-export default function PriceRangeSlider({ min, max, values, onChange }: Props) {
+export default function ModelYearSelector({ yearRange, onChangeYear }: Props) {
   const theme = useColorScheme() || "light";
   const colorTheme = Colors[theme];
 
   return (
-    <View style={{ marginBottom: 36 }}>
+    <View className="mb-9">
       {/* Label */}
       <Text
-        style={{
-          color: colorTheme.text,
-          fontSize: 18,
-          fontWeight: "600",
-          marginBottom: 8,
-        }}
+        style={{ color: colorTheme.text }}
+        className="text-lg font-semibold mb-2"
       >
-        Price Range
+        Model Year
       </Text>
 
       {/* Combined range display */}
       <Text
-        style={{
-          color: colorTheme.muted,
-          fontSize: 14,
-          fontWeight: "500",
-          marginBottom: 10,
-        }}
+        style={{ color: colorTheme.muted }}
+        className="text-sm font-medium mb-2.5"
       >
-        KES {values[0].toLocaleString()} – KES {values[1].toLocaleString()}
+        {yearRange[0]} – {yearRange[1]}
       </Text>
 
       {/* Slider */}
-      <View style={{ alignItems: "center" }}>
+      <View className="items-center">
         <MultiSlider
-          values={values}
+          values={yearRange}
           sliderLength={280}
-          min={min}
-          max={max}
-          step={50000}
-          onValuesChange={(val) => onChange([val[0], val[1]])}
+          min={2000}
+          max={new Date().getFullYear()}
+          step={1}
+          onValuesChange={(vals) => onChangeYear([vals[0], vals[1]])}
           selectedStyle={{ backgroundColor: colorTheme.accent }}
           unselectedStyle={{ backgroundColor: colorTheme.border }}
           markerStyle={{
@@ -59,7 +48,8 @@ export default function PriceRangeSlider({ min, max, values, onChange }: Props) 
             borderRadius: 12,
             borderColor: colorTheme.surface,
             borderWidth: 2,
-            marginTop: 5,
+            // Adjust this to center the track within the marker
+            marginTop: 6, // (Marker Height - Track Height) / 2 = (24 - 6) / 2 = 9. So, move marker up by 9.
           }}
           trackStyle={{ height: 6, borderRadius: 3 }}
           containerStyle={{ marginTop: 3 }}
