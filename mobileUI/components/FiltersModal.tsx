@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import EcoFriendlySelector from "@/components/FilterComponents/EcoFriendlySelector";
 import FeatureSelector from "@/components/FilterComponents/FeatureSelector";
+import MileageRangeSlider from "@/components/FilterComponents/MileageRangeSlider";
 import PriceRangeSlider from "@/components/FilterComponents/PriceRangeSlider";
 import SortByModal from "@/components/FilterComponents/SortByModal";
 import VehicleAttributes from "@/components/FilterComponents/VehicleAttributes";
@@ -31,26 +32,32 @@ export default function FiltersModal({ visible, onClose }: Props) {
   const [sortOption, setSortOption] = useState("Relevance");
   const [sortByModalVisible, setSortByModalVisible] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 5000000]);
+  const [mileageRange, setMileageRange] = useState<[number, number]>([0, 250000]);
   const [vehicleType, setVehicleType] = useState<string | null>(null);
   const [ecoType, setEcoType] = useState<string | null>(null);
   const [makes, setMakes] = useState<string[]>([]);
   const [yearRange, setYearRange] = useState<[number, number]>([2010, new Date().getFullYear()]);
   const [transmission, setTransmission] = useState<string | null>(null);
-  const [features, setFeatures] = useState<string[]>([]); // ✅ new state
+  const [features, setFeatures] = useState<string[]>([]);
 
   const handleApply = () => {
     console.log("Filters:", {
       sortOption,
       priceRange,
+      mileageRange,
       vehicleType,
       ecoType,
       makes,
       yearRange,
       transmission,
-      features, // ✅ include in filters
+      features,
     });
     onClose();
   };
+
+  const Divider = () => (
+    <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+  );
 
   return (
     <Modal
@@ -88,7 +95,6 @@ export default function FiltersModal({ visible, onClose }: Props) {
         {/* Filter Content */}
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
           <View style={{ gap: 24 }}>
-            
             {/* Sort By */}
             <Pressable
               onPress={() => setSortByModalVisible(true)}
@@ -107,7 +113,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
               </Text>
             </Pressable>
 
-            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+            <Divider />
 
             {/* Price Range */}
             <PriceRangeSlider
@@ -117,7 +123,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
               onChange={setPriceRange}
             />
 
-            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+            <Divider />
 
             {/* Vehicle Type */}
             <VehicleTypeSelector
@@ -125,7 +131,17 @@ export default function FiltersModal({ visible, onClose }: Props) {
               onSelect={setVehicleType}
             />
 
-            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+            <Divider />
+
+             {/* Mileage Range */}
+            <MileageRangeSlider
+              min={0}
+              max={250000}
+              values={mileageRange}
+              onChange={setMileageRange}
+            />
+
+            <Divider />
 
             {/* Eco Friendly */}
             <EcoFriendlySelector
@@ -133,7 +149,7 @@ export default function FiltersModal({ visible, onClose }: Props) {
               onChange={setEcoType}
             />
 
-            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+            <Divider />
 
             {/* Vehicle Attributes */}
             <VehicleAttributes
@@ -145,10 +161,13 @@ export default function FiltersModal({ visible, onClose }: Props) {
               onChangeTrans={setTransmission}
             />
 
-            <View style={{ height: 1, backgroundColor: colorTheme.border, opacity: 0.6 }} />
+            <Divider />
 
-            {/* ✅ Feature Selector */}
-            <FeatureSelector selected={features} onChange={setFeatures} />
+            {/* Feature Selector */}
+            <FeatureSelector
+              selected={features}
+              onChange={setFeatures}
+            />
           </View>
         </ScrollView>
 

@@ -1,4 +1,3 @@
-// components/QuickFilters.tsx
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
@@ -9,9 +8,16 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import PriceFilterModal from "./FilterModals/PriceFilterModal";
 import FiltersModal from "./FiltersModal";
 
-const filters = [
+const staticChips = [
+  { label: "Price", isDropdown: true },
+  { label: "Vehicle Type", isDropdown: true },
+  { label: "Make", isDropdown: true },
+];
+
+const dynamicFilters = [
   { label: "SUV" },
   { label: "Sedan" },
   { label: "Pickup" },
@@ -26,8 +32,21 @@ const filters = [
 export default function QuickFilters() {
   const [selected, setSelected] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [priceModalVisible, setPriceModalVisible] = useState(false); // ✅ new state
   const theme = useColorScheme() || "light";
   const colorTheme = Colors[theme];
+
+  const handleChipPress = (label: string) => {
+    setSelected(selected === label ? null : label);
+  };
+
+  const handleStaticChipPress = (label: string) => {
+    if (label === "Price") {
+      setPriceModalVisible(true); // ✅ show modal
+    } else {
+      handleChipPress(label);
+    }
+  };
 
   return (
     <View className="mb-4">
@@ -61,43 +80,71 @@ export default function QuickFilters() {
             color={colorTheme.text}
             style={{ marginRight: 6 }}
           />
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "500",
-              color: colorTheme.text,
-            }}
-          >
+          <Text style={{ fontSize: 14, fontWeight: "500", color: colorTheme.text }}>
             All Filters
           </Text>
         </TouchableOpacity>
 
-        {/* Filter Chips */}
-        {filters.map(({ label }, index) => {
+        {/* Static dropdown chips (Price, Vehicle Type, Make) */}
+        {staticChips.map(({ label }) => {
           const isActive = selected === label;
           return (
             <TouchableOpacity
               key={label}
-              onPress={() => setSelected(isActive ? null : label)}
+              onPress={() => handleStaticChipPress(label)}
               style={{
-                marginRight: index === filters.length - 1 ? 0 : 8,
-                paddingHorizontal: 16,
+                flexDirection: "row",
+                alignItems: "center",
+                marginRight: 8,
+                paddingHorizontal: 14,
                 paddingVertical: 8,
                 borderRadius: 8,
                 borderWidth: 1,
-                borderColor: isActive
-                  ? colorTheme.accent
-                  : colorTheme.border,
-                backgroundColor: isActive
-                  ? colorTheme.accent
-                  : colorTheme.surface,
+                borderColor: isActive ? colorTheme.accent : colorTheme.border,
+                backgroundColor: isActive ? colorTheme.accent : colorTheme.surface,
               }}
             >
               <Text
                 style={{
                   fontSize: 14,
                   fontWeight: "500",
-                  color: isActive ? "#ffffff" : colorTheme.text,
+                  color: isActive ? "#fff" : colorTheme.text,
+                  marginRight: 6,
+                }}
+              >
+                {label}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={16}
+                color={isActive ? "#fff" : colorTheme.text}
+              />
+            </TouchableOpacity>
+          );
+        })}
+
+        {/* Dynamic Filter Chips */}
+        {dynamicFilters.map(({ label }, index) => {
+          const isActive = selected === label;
+          return (
+            <TouchableOpacity
+              key={label}
+              onPress={() => handleChipPress(label)}
+              style={{
+                marginRight: index === dynamicFilters.length - 1 ? 0 : 8,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: isActive ? colorTheme.accent : colorTheme.border,
+                backgroundColor: isActive ? colorTheme.accent : colorTheme.surface,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "500",
+                  color: isActive ? "#fff" : colorTheme.text,
                 }}
               >
                 {label}
@@ -107,8 +154,9 @@ export default function QuickFilters() {
         })}
       </ScrollView>
 
-      {/* Modal Component */}
+      {/* Modals */}
       <FiltersModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+      <PriceFilterModal visible={priceModalVisible} onClose={() => setPriceModalVisible(false)} />
     </View>
   );
 }
