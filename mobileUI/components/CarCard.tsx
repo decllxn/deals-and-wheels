@@ -1,9 +1,8 @@
-import React from "react";
-import { View, Text, Image, Pressable } from "react-native";
-import { useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { Car } from "@/constants/mockCars";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { Image, Pressable, Text, useColorScheme, View } from "react-native";
 
 interface Props {
   car: Car;
@@ -19,7 +18,7 @@ export default function CarCard({ car }: Props) {
       style={{
         width: 300,
         backgroundColor: colorTheme.surface,
-        borderRadius: 12, // Less rounded corners
+        borderRadius: 12,
         overflow: "hidden",
         marginRight: 16,
         shadowColor: "#000",
@@ -60,22 +59,39 @@ export default function CarCard({ car }: Props) {
             fontSize: 16,
             fontWeight: "700",
             color: colorTheme.accent,
-            marginBottom: 12,
+            marginBottom: 10,
           }}
         >
           {car.price}
         </Text>
 
-        {/* Info Grid */}
-        <View style={{ rowGap: 6 }}>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <InfoItem icon="speedometer-outline" label={car.mileage} color={colorTheme.icon} />
-            <InfoItem icon="settings-outline" label={car.transmission} color={colorTheme.icon} />
-            <InfoItem icon="flame-outline" label={car.fuelType} color={colorTheme.icon} />
-          </View>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <InfoItem icon="location-outline" label={car.location} color={colorTheme.icon} />
-          </View>
+        {/* Sleek Metadata Row */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 10,
+          }}
+        >
+          <InfoItem icon="speedometer-outline" label={car.mileage} color={colorTheme.icon} />
+          <InfoLabel label="Automatic" color={colorTheme.icon} />
+          <InfoItemFA icon="gas-pump" label={car.fuelType} color={colorTheme.icon} />
+        </View>
+
+        {/* Location Row */}
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons name="location-outline" size={14} color={colorTheme.icon} />
+          <Text
+            style={{
+              fontSize: 13,
+              fontWeight: "500",
+              color: colorTheme.icon,
+              marginLeft: 6,
+            }}
+          >
+            {car.location}
+          </Text>
         </View>
 
         {/* Divider */}
@@ -111,7 +127,7 @@ export default function CarCard({ car }: Props) {
   );
 }
 
-// Reusable Info Row
+// Ionicons Info Item
 function InfoItem({
   icon,
   label,
@@ -124,16 +140,32 @@ function InfoItem({
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
       <Ionicons name={icon} size={14} color={color} />
-      <Text
-        style={{
-          fontSize: 13,
-          fontWeight: "500",
-          color,
-          marginLeft: 6,
-        }}
-      >
-        {label}
-      </Text>
+      <Text style={{ fontSize: 13, fontWeight: "500", color, marginLeft: 4 }}>{label}</Text>
     </View>
+  );
+}
+
+// FontAwesome Info Item
+function InfoItemFA({
+  icon,
+  label,
+  color,
+}: {
+  icon: React.ComponentProps<typeof FontAwesome5>["name"];
+  label: string;
+  color: string;
+}) {
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <FontAwesome5 name={icon} size={13} color={color} />
+      <Text style={{ fontSize: 13, fontWeight: "500", color, marginLeft: 4 }}>{label}</Text>
+    </View>
+  );
+}
+
+// Simple Label (for transmission, etc.)
+function InfoLabel({ label, color }: { label: string; color: string }) {
+  return (
+    <Text style={{ fontSize: 13, fontWeight: "500", color }}>{label}</Text>
   );
 }

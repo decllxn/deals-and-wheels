@@ -8,7 +8,9 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+import MakeFilterModal from "./FilterModals/MakeFilterModal";
 import PriceFilterModal from "./FilterModals/PriceFilterModal";
+import VehicleTypeFilterModal from "./FilterModals/VehicleTypeFilterModal";
 import FiltersModal from "./FiltersModal";
 
 const staticChips = [
@@ -30,21 +32,37 @@ const dynamicFilters = [
 ];
 
 export default function QuickFilters() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [priceModalVisible, setPriceModalVisible] = useState(false); // ✅ new state
   const theme = useColorScheme() || "light";
   const colorTheme = Colors[theme];
 
+  // Modal visibility states
+  const [modalVisible, setModalVisible] = useState(false);
+  const [priceModalVisible, setPriceModalVisible] = useState(false);
+  const [vehicleTypeVisible, setVehicleTypeVisible] = useState(false);
+  const [makeModalVisible, setMakeModalVisible] = useState(false);
+
+  // Filter values
+  const [selectedChip, setSelectedChip] = useState<string | null>(null);
+  const [selectedVehicleType, setSelectedVehicleType] = useState<string | null>(null);
+  const [selectedMake, setSelectedMake] = useState<string[]>([]);
+
   const handleChipPress = (label: string) => {
-    setSelected(selected === label ? null : label);
+    setSelectedChip(selectedChip === label ? null : label);
   };
 
   const handleStaticChipPress = (label: string) => {
-    if (label === "Price") {
-      setPriceModalVisible(true); // ✅ show modal
-    } else {
-      handleChipPress(label);
+    switch (label) {
+      case "Price":
+        setPriceModalVisible(true);
+        break;
+      case "Vehicle Type":
+        setVehicleTypeVisible(true);
+        break;
+      case "Make":
+        setMakeModalVisible(true);
+        break;
+      default:
+        handleChipPress(label);
     }
   };
 
@@ -85,9 +103,23 @@ export default function QuickFilters() {
           </Text>
         </TouchableOpacity>
 
-        {/* Static dropdown chips (Price, Vehicle Type, Make) */}
+        {/* Static Chips */}
         {staticChips.map(({ label }) => {
-          const isActive = selected === label;
+          let isActive = selectedChip === label;
+
+          // Keep chip highlighted if there are selections
+          if (label === "Make" && selectedMake.length > 0) {
+            isActive = true;
+          }
+          if (label === "Vehicle Type" && selectedVehicleType) {
+            isActive = true;
+          }
+
+          const labelDisplay =
+            label === "Make" && selectedMake.length > 0
+              ? `Make (${selectedMake.length})`
+              : label;
+
           return (
             <TouchableOpacity
               key={label}
@@ -112,7 +144,7 @@ export default function QuickFilters() {
                   marginRight: 6,
                 }}
               >
-                {label}
+                {labelDisplay}
               </Text>
               <Ionicons
                 name="chevron-down"
@@ -125,7 +157,7 @@ export default function QuickFilters() {
 
         {/* Dynamic Filter Chips */}
         {dynamicFilters.map(({ label }, index) => {
-          const isActive = selected === label;
+          const isActive = selectedChip === label;
           return (
             <TouchableOpacity
               key={label}
@@ -156,7 +188,28 @@ export default function QuickFilters() {
 
       {/* Modals */}
       <FiltersModal visible={modalVisible} onClose={() => setModalVisible(false)} />
-      <PriceFilterModal visible={priceModalVisible} onClose={() => setPriceModalVisible(false)} />
+      <PriceFilterModal
+        visible={priceModalVisible}
+        onClose={() => setPriceModalVisible(false)}
+      />
+      <VehicleTypeFilterModal
+        visible={vehicleTypeVisible}
+        onClose={() => setVehicleTypeVisible(false)}
+        selected={selectedVehicleType}
+        onSelect={(type) => {
+          setSelectedVehicleType(type);
+          setSelectedChip("Vehicle Type");
+        }}
+      />
+      <MakeFilterModal
+        visible={makeModalVisible}
+        onClose={() => setMakeModalVisible(false)}
+        selected={selectedMake}
+        onSelect={(makes) => {
+          setSelectedMake(makes);
+          setSelectedChip("Make");
+        }}
+      />
     </View>
   );
 }

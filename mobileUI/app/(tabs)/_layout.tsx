@@ -1,6 +1,6 @@
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import type { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
 import {
@@ -18,7 +18,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        headerShown: false, // 🔥 Hide the TopBar completely
+        headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
@@ -58,20 +58,11 @@ export default function TabLayout() {
         tabBarIcon: ({ focused, color }) => {
           const iconSize = focused ? 26 : 22;
 
-          if (route.name === "dealers") {
-            return (
-              <MaterialIcons
-                name="storefront"
-                size={iconSize}
-                color={color}
-              />
-            );
-          }
-
           const iconMap: Record<string, keyof typeof Ionicons.glyphMap> = {
             index: focused ? "home" : "home-outline",
-            sell: focused ? "add-circle" : "add-circle-outline",
             search: focused ? "search" : "search-outline",
+            sell: focused ? "add-circle" : "add-circle-outline",
+            messaging: focused ? "chatbubble" : "chatbubble-outline",
             account: focused ? "person" : "person-outline",
           };
 
@@ -88,7 +79,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="search" options={{ title: "Explore" }} />
       <Tabs.Screen name="sell" options={{ title: "Sell Car" }} />
-      <Tabs.Screen name="dealers" options={{ title: "Dealers" }} />
+      <Tabs.Screen name="messaging" options={{ title: "Messages" }} />
       <Tabs.Screen name="account" options={{ title: "Profile" }} />
     </Tabs>
   );
