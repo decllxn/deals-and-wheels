@@ -1,0 +1,10 @@
+Hi {{ user.first_name }},
+
+Your subscription to {{ plan_name }} has been cancelled.
+{% if cancel_at %}Your access remains active until {{ cancel_at|date:"M d, Y" }}.{% endif %}
+
+You can renew or upgrade anytime from your dashboard.
+
+We appreciate your support and hope to see you again.
+
+— The {{ settings.SITE_NAME|default:"Your Company" }} Team

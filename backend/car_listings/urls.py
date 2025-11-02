@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CarListingViewSet, CarListingImageViewSet, CarListingFeatureViewSet,
     CarListingEquipmentViewSet, CarListingModificationViewSet,
-    CarListingKnownFlawViewSet, CarListingVideoWalkaroundViewSet
+    CarListingKnownFlawViewSet, CarListingVideoWalkaroundViewSet,
+    PopularTagsView   # <-- import here
 )
 
 router = DefaultRouter()
@@ -17,4 +18,5 @@ router.register(r"listing-videos", CarListingVideoWalkaroundViewSet, basename='l
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("popular-tags/", PopularTagsView.as_view(), name="popular-tags"),  # ✅ new endpoint
 ]

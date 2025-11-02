@@ -1,90 +1,84 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import {
-  fetchListings,
-  fetchFeaturedListings,
-  fetchNewListings,
-  fetchLowestPriceListings,
-  fetchHighestPriceListings,
-  fetchLowestMileageListings,
-} from "../../api2";
-import ListingCard from "./ListingCard"; // Assuming you created the CarListingCard component
+import React, { useEffect, useState } from "react";
+import { fetchListings } from "../../api2";
+import ListingCard from "./ListingCard";
+import Pagination from "./Pagination";
 
-const CarsForSaleGrid = () => {
+const ListingGrid = ({ filters, filterRef }) => {
   const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { filterType } = useParams();
-  const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     const loadListings = async () => {
       setLoading(true);
-      setError(null);
-      let data;
-
+      setError("");
       try {
-        switch (filterType) {
-          case 'featured':
-            data = await fetchFeaturedListings(searchParams.get('page'), searchParams.get('page_size'));
-            break;
-          case 'new-listings':
-            data = await fetchNewListings(searchParams.get('page'), searchParams.get('page_size'));
-            break;
-          case 'lowest-price':
-            data = await fetchLowestPriceListings(searchParams.get('page'), searchParams.get('page_size'));
-            break;
-          case 'highest-price':
-            data = await fetchHighestPriceListings(searchParams.get('page'), searchParams.get('page_size'));
-            break;
-          case 'lowest-mileage':
-            data = await fetchLowestMileageListings(searchParams.get('page'), searchParams.get('page_size'));
-            break;
-          default:
-            const query = searchParams.get("search") || "";
-            const params = {};
-            searchParams.forEach((value, key) => {
-              if (key !== "search") {
-                params[key] = value;
-              }
-            });
-            data = await fetchListings(query, params, searchParams.get('page'), searchParams.get('page_size'));
-            break;
-        }
-        setListings(data.results || data);
+        const data = await fetchListings("", {
+          ...filters,
+          page,
+          page_size: pageSize,
+        });
+
+        setListings(data?.results ?? []);
+        setCount(data?.count ?? 0);
+
+        // 🔑 After fetch, scroll back to filter section
+        filterRef?.current?.scrollToTop?.();
       } catch (err) {
-        setError(err.message || "Failed to fetch listings.");
+        console.error("Failed to fetch listings", err);
+        setError("Something went wrong. Please try again later.");
+        setListings([]);
       } finally {
         setLoading(false);
       }
     };
 
     loadListings();
-  }, [filterType, searchParams]);
+  }, [filters, page, pageSize, filterRef]);
 
+  const totalPages = Math.ceil(count / pageSize);
+
+  // Loading Skeletons
   if (loading) {
-    return <div className="max-w-[1600px] mx-auto px-6 py-10">Loading cars for sale...</div>;
+    return (
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6">
+        {Array.from({ length: pageSize }).map((_, i) => (
+          <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+        ))}
+      </div>
+    );
   }
 
+  // Error State
   if (error) {
-    return <div className="max-w-[1600px] mx-auto px-6 py-10 text-red-500">Error: {error}</div>;
+    return <p className="text-center text-red-500 mt-6 font-medium">{error}</p>;
+  }
+
+  // Empty State
+  if (!listings.length) {
+    return (
+      <p className="text-center text-gray-500 mt-6 text-lg">
+        🚘 No cars found. Try adjusting your filters.
+      </p>
+    );
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[var(--bg-color)] text-[var(--text-color)]">
-      <h2 className="text-3xl font-bold text-[var(--text-color)] mb-6">
-        {filterType
-          ? filterType.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-          : 'Cars For Sale'}
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <>
+      {/* Listings Grid */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-6">
         {listings.map((listing) => (
           <ListingCard key={listing.id} listing={listing} />
         ))}
-        {listings.length === 0 && !loading && <p>No cars for sale found matching your criteria.</p>}
       </div>
-    </div>
+
+      {/* Pagination Component */}
+      <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+    </>
   );
 };
 
-export default CarsForSaleGrid;
+export default ListingGrid;

@@ -1,7 +1,7 @@
 from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.decorators import api_view
 from .models import Car, Review
 from .serializers import (
     CarSerializer,
@@ -35,3 +35,16 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return ReviewDetailSerializer
         return ReviewListSerializer
+
+
+# 🆕 Latest Reviews Endpoint
+@api_view(['GET'])
+def latest_reviews(request):
+    """
+    Return the 3 most recent reviews.
+    """
+    latest = Review.objects.order_by('-created_at')[:3]
+    if not latest.exists():
+        return Response({"detail": "No reviews available."}, status=404)
+    serializer = ReviewListSerializer(latest, many=True, context={'request': request})
+    return Response(serializer.data)

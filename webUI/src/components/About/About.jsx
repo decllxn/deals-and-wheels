@@ -1,5 +1,5 @@
 import React from "react";
-import StorySlider from "./StorySlider";
+import HeroIntro from "./HeroIntro";
 import WhoWeAre from "./WhoWeAre";
 import WhatWeDo from "./WhatWeDo";
 import WhyChooseUs from "./WhyChooseUs";
@@ -11,7 +11,7 @@ import FounderCEO from "./FounderCEO";
 const About = () => {
   return (
     <div>
-      <StorySlider />
+      <HeroIntro />
       <WhoWeAre />
       <WhatWeDo />
       <WhyChooseUs />

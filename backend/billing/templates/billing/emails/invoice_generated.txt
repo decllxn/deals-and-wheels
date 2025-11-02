@@ -1,0 +1,11 @@
+Hi {{ user.first_name }},
+
+A new invoice has been generated for your subscription.
+
+Invoice ID: {{ invoice.provider_invoice_id }}
+Amount: {{ amount }}
+Date: {{ timestamp|date:"M d, Y H:i" }}
+
+You can view or download the invoice from your dashboard.
+
+Thank you for your continued business.

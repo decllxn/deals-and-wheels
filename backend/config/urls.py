@@ -11,13 +11,14 @@ urlpatterns = [
 
     path('accounts/', include('accounts.urls')),
     path('vehicles/', include('car_listings.urls')),
-    path('dealers/', include('dealers.urls')),
+    path('dealers/api/', include('dealers.urls')),
     path('blogs/api/', include('blogs.urls')),
     path('news-articles/', include('news_articles.urls')),
     path('reviews/', include('reviews.urls')),
     path('guides/', include('guides.urls')),
     path('glossary/', include('automotive_glossary.urls')),
     path('manufacturers/', include('manufacturers.urls')),
+    path('api/', include("api.urls")),
 
     # auth
     path('auth/', include('dj_rest_auth.urls')),
@@ -30,6 +31,11 @@ urlpatterns = [
 
     # fluent comments
     path('comments/', include('fluent_comments.urls')),
+
+    path("chat/", include("chat.urls")),
+    path("api/dealer-dashboard/", include("dealer_dashboard.urls")),
+
+    path("api/billing/", include("billing.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

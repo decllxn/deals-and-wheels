@@ -1,22 +1,17 @@
 import React from 'react';
-import HeroSection from './HeroSection';
-import ContactOptions from './ContactOptions';
+import ContactHero from './ContactHero';
+import ContactInfoCards from './ContactInfoCards';
 import ContactForm from './ContactForm';
-import FAQSection from './FAQSection';
-import SocialMediaLinks from './SocialMediaLinks';
-import Testimonials from './Testimonials';
+import SupportLinks from './SupportLinks';
+
 
 const Contact = () => {
   return (
-    <div>
-      <HeroSection />
-      <div>
-        <ContactOptions />
-        <ContactForm />
-        <FAQSection />
-        <SocialMediaLinks />
-        <Testimonials />
-      </div>
+    <div className='mt-20'>
+      <ContactHero />
+      <ContactInfoCards />
+      <ContactForm />
+      <SupportLinks />
     </div>
   );
 };

@@ -1,15 +1,15 @@
 // components/ExploreCars/carData.js
-
 export const carTypes = [
-    { name: "Sedan", iconClass: "fi fi-rr-car-side" },
-    { name: "SUV", iconClass: "fi fi-rr-car" },
-    { name: "Convertible", iconClass: "fi fi-rr-car-roof" },
-    { name: "Coupe", iconClass: "fi fi-rr-car-alt" },
-    { name: "Hatchback", iconClass: "fi fi-rr-car-hatchback" }, // or fallback
-    { name: "Wagon", iconClass: "fi fi-rr-wagon" }, // May need fallback
-    { name: "Pickup", iconClass: "fi fi-rr-pickup" },
-    { name: "Minivan", iconClass: "fi fi-rr-van" }
-  ];
+  { name: "Sedan", iconSrc: "/pngs/Sedan.png" },
+  { name: "SUV", iconSrc: "/pngs/SUV.png" },
+  { name: "Convertible", iconSrc: "/pngs/Convertible.png" },
+  { name: "Coupe", iconSrc: "/pngs/Coupe.png" },
+  { name: "Hatchback", iconSrc: "/pngs/hatchback.png" },
+  { name: "Wagon", iconSrc: "/pngs/Station-wagon.png" },
+  { name: "Pickup", iconSrc: "/pngs/pickup-truck.png" },
+  { name: "Minivan", iconSrc: "/pngs/Mini-van.png" }
+];
+
   
   export const mainManufacturersData = [
     { name: "Abarth", logoSrc: "/Brand_logos/abt.png" },

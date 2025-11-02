@@ -1,171 +1,219 @@
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { FaUser, FaEnvelope, FaPencilAlt, FaPaperPlane, FaFileUpload } from "react-icons/fa";
-import Select from "react-select";
-import ReCAPTCHA from "react-google-recaptcha";
-
-const inquiryOptions = [
-  { value: "sales", label: "🚗 Sales Inquiry" },
-  { value: "support", label: "🛠 Support Request" },
-  { value: "partnership", label: "🤝 Partnership Opportunity" },
-  { value: "other", label: "❓ Other" },
-];
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, CheckCircle2, Upload } from "lucide-react";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
-    name: localStorage.getItem("user_name") || "",
-    email: localStorage.getItem("user_email") || "",
-    subject: "",
+    name: "",
+    email: "",
+    topic: "",
     message: "",
-    inquiryType: "",
     file: null,
   });
 
+  const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/))
+      newErrors.email = "Enter a valid email";
+    if (!formData.topic) newErrors.topic = "Please select a topic";
+    if (!formData.message.trim()) newErrors.message = "Message cannot be empty";
+    return newErrors;
+  };
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    if (name === "name") localStorage.setItem("user_name", value);
-    if (name === "email") localStorage.setItem("user_email", value);
-  };
-
-  const handleFileUpload = (e) => {
-    setFormData({ ...formData, file: e.target.files[0] });
-  };
-
-  const handleSelectChange = (selectedOption) => {
-    setFormData({ ...formData, inquiryType: selectedOption.value });
+    const { name, value, files } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value,
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("🚀 Message Sent Successfully!");
+    const validation = validate();
+    setErrors(validation);
+    if (Object.keys(validation).length === 0) {
+      setTimeout(() => {
+        setIsSubmitted(true);
+      }, 700);
+    }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-between w-full max-w-6xl mx-auto mt-16 px-6">
-      
-      {/* 📢 Call to Action Section (Same Height as Form) */}
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="lg:w-1/2 min-h-[100%] mr-3 mb-3 flex items-center justify-center relative rounded-lg overflow-hidden"
-      >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('/handshake.jpg')` }} // Replace with your image path
+    <section
+      className="relative py-28 px-6 overflow-hidden"
+      style={{
+        backgroundColor: "var(--bg-color)",
+        color: "var(--text-color)",
+      }}
+    >
+      <div className="max-w-3xl mx-auto relative z-10">
+        {/* Header */}
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-4xl md:text-5xl font-bold text-center mb-4"
         >
-          <div className="absolute inset-0 bg-black opacity-50"></div> {/* Dimmed Overlay */}
-        </div>
-        <div className="relative z-10 p-10 text-center lg:text-left flex flex-col justify-center h-full">
-          <h2 className="text-4xl font-extrabold text-white leading-tight">
-            Get in Touch <br />
-            <span className="text-blue-400">We're Here to Help!</span>
-          </h2>
-          <p className="text-gray-300 mt-4 text-lg">
-            Whether you need assistance, want to sell a car, or have partnership ideas, we're just a message away!
-          </p>
-          <div className="mt-6">
-            <a
-              href="tel:+254712345678"
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition"
+          Send Us a <span style={{ color: "var(--accent-color)" }}>Message</span>
+        </motion.h2>
+        <p
+          className="text-center text-lg mb-12"
+          style={{ color: "var(--muted-text)" }}
+        >
+          Have a question or suggestion? We’d love to hear from you.
+        </p>
+
+        {/* Success Message */}
+        <AnimatePresence>
+          {isSubmitted ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center justify-center py-20 text-center rounded-2xl bg-[var(--surface-color)]/70 border border-[var(--border-color)] backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
             >
-              📞 Call Us Now
-            </a>
-          </div>
-        </div>
-      </motion.div>
+              <CheckCircle2
+                size={60}
+                className="text-[var(--accent-color)] mb-4"
+              />
+              <h3 className="text-2xl font-semibold mb-2">
+                Message Sent Successfully!
+              </h3>
+              <p style={{ color: "var(--muted-text)" }}>
+                Our team will get back to you within 24 hours.
+              </p>
+            </motion.div>
+          ) : (
+            <motion.form
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              onSubmit={handleSubmit}
+              className="space-y-6 bg-[var(--surface-color)]/70 border border-[var(--border-color)] backdrop-blur-xl rounded-3xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.04)]"
+            >
+              {/* Name */}
+              <div>
+                <label className="block font-medium mb-2">Full Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all duration-300"
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
+              </div>
 
-      {/* 📝 Contact Form Section */}
+              {/* Email */}
+              <div>
+                <label className="block font-medium mb-2">Email Address</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all duration-300"
+                  placeholder="you@example.com"
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
+              </div>
+
+              {/* Topic */}
+              <div>
+                <label className="block font-medium mb-2">Subject / Topic</label>
+                <select
+                  name="topic"
+                  value={formData.topic}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all duration-300"
+                >
+                  <option value="">Select a topic</option>
+                  <option value="dealer">Dealer Inquiry</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="support">Technical Support</option>
+                  <option value="feedback">General Feedback</option>
+                </select>
+                {errors.topic && (
+                  <p className="text-red-500 text-sm mt-1">{errors.topic}</p>
+                )}
+              </div>
+
+              {/* Message */}
+              <div>
+                <label className="block font-medium mb-2">Your Message</label>
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  rows="5"
+                  className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-transparent focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] transition-all duration-300"
+                  placeholder="Write your message here..."
+                />
+                {errors.message && (
+                  <p className="text-red-500 text-sm mt-1">{errors.message}</p>
+                )}
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <label className="block font-medium mb-2">Attach a File (optional)</label>
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="file"
+                    className="flex items-center gap-2 px-5 py-2 border border-[var(--border-color)] rounded-full cursor-pointer hover:bg-[var(--accent-color)] hover:text-white transition-all duration-300"
+                  >
+                    <Upload size={18} />
+                    {formData.file ? formData.file.name : "Upload File"}
+                  </label>
+                  <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                className="w-full py-4 rounded-full text-lg font-semibold text-white flex items-center justify-center gap-2 shadow-lg"
+                style={{
+                  backgroundColor: "var(--accent-color)",
+                  boxShadow: "0 6px 30px rgba(0,0,0,0.1)",
+                }}
+              >
+                Send Message <Send size={20} />
+              </motion.button>
+            </motion.form>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Ambient Glow */}
       <motion.div
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="lg:w-1/2 bg-white dark:bg-[#1f1f1f] p-8 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 min-h-[100%]"
-      >
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-          ✉️ Contact Us
-        </h3>
-
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          {/* 🧑 Name Input */}
-          <div className="relative">
-            <FaUser className="absolute left-4 top-3 text-gray-400 dark:text-gray-500" />
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Your Name"
-              className="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white py-3 pl-12 pr-4 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          {/* 📧 Email Input */}
-          <div className="relative">
-            <FaEnvelope className="absolute left-4 top-3 text-gray-400 dark:text-gray-500" />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Your Email"
-              className="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white py-3 pl-12 pr-4 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          {/* 🔽 Inquiry Type Dropdown */}
-          <Select
-            options={inquiryOptions}
-            placeholder="Select Inquiry Type"
-            onChange={handleSelectChange}
-            className="dark:bg-gray-900 text-gray-900 dark:text-[#1f1f1f]"
-          />
-
-          {/* ✍️ Message Input */}
-          <div className="relative">
-            <FaPencilAlt className="absolute left-4 top-3 text-gray-400 dark:text-gray-500" />
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              placeholder="Your Message"
-              rows="4"
-              className="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white py-3 pl-12 pr-4 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              required
-            ></textarea>
-          </div>
-
-          {/* 📂 File Upload */}
-          <div className="relative">
-            <FaFileUpload className="absolute left-4 top-3 text-gray-400 dark:text-gray-500" />
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              className="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white py-3 pl-12 pr-4 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* 🔐 reCAPTCHA */}
-          <div className="flex justify-center">
-            <ReCAPTCHA sitekey="YOUR_RECAPTCHA_SITE_KEY" />
-          </div>
-
-          {/* 🚀 Submit Button */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition flex items-center justify-center"
-          >
-            <FaPaperPlane className="mr-2" /> Send Message
-          </motion.button>
-        </form>
-      </motion.div>
-    </div>
+        className="absolute top-1/2 left-1/2 w-[800px] h-[800px] rounded-full blur-[200px] opacity-10 -translate-x-1/2 -translate-y-1/2"
+        style={{ backgroundColor: "var(--accent-color)" }}
+        animate={{ scale: [1, 1.1, 1], opacity: [0.08, 0.12, 0.08] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+    </section>
   );
 };
 

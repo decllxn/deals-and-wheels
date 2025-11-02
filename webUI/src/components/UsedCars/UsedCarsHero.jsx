@@ -33,7 +33,7 @@ const UsedCarsHero = () => {
               className="w-5/12 max-w-[160px] sm:max-w-[220px] lg:hidden"
             >
               <img
-                src="/hero-car.png"
+                src="/blue-isolated-car.png"
                 alt="Used Car Hero"
                 className="w-full object-contain drop-shadow-xl"
               />
@@ -64,7 +64,7 @@ const UsedCarsHero = () => {
           className="hidden lg:flex justify-center flex-1 max-w-[45%] items-start"
         >
           <img
-            src="/hero-car.png"
+            src="/blue-isolated-car.png"
             alt="Used Car Hero"
             className="w-full object-contain max-h-[400px] lg:max-h-[450px] drop-shadow-xl"
           />

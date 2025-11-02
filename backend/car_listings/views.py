@@ -1,180 +1,237 @@
-from rest_framework import generics, filters as rf_filters, viewsets, status
+# vehicles/views.py
+from rest_framework import viewsets, status, filters as rf_filters, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import (
-    CarListing, CarListingImage, CarListingFeature, CarListingEquipment,
-    CarListingModification, CarListingKnownFlaw, CarListingVideoWalkaround
-)
-from .serializers import (
-    CarListingSerializer, CarListingImageSerializer, CarListingFeatureSerializer,
-    CarListingEquipmentSerializer, CarListingModificationSerializer,
-    CarListingKnownFlawSerializer, CarListingVideoWalkaroundSerializer,
-    CarListingSuggestionSerializer
-)
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, NumberFilter, CharFilter, ChoiceFilter, ModelChoiceFilter
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
-from dealers.models import Dealer
-from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
 import logging
+
+from .models import (
+    CarListing,
+    CarListingImage,
+    CarListingFeature,
+    CarListingEquipment,
+    CarListingModification,
+    CarListingKnownFlaw,
+    CarListingVideoWalkaround,
+)
+from .serializers import (
+    CarListingSerializer,
+    CarListingImageSerializer,
+    CarListingFeatureSerializer,
+    CarListingEquipmentSerializer,
+    CarListingModificationSerializer,
+    CarListingKnownFlawSerializer,
+    CarListingVideoWalkaroundSerializer,
+    CarListingSuggestionSerializer,
+)
+from .filters import CarListingFilter  # optional — you can add later
+from . import utils  # optional — for search analytics, similar listings, etc.
 
 logger = logging.getLogger(__name__)
 
+
+# ----------------------------------------
+# Pagination
+# ----------------------------------------
 class CarListingPagination(PageNumberPagination):
-    page_size = 16
-    page_size_query_param = 'page_size'
+    page_size = 15
+    page_size_query_param = "page_size"
     max_page_size = 100
 
-class CarListingFilter(FilterSet):
-    price__gte = NumberFilter(field_name='price', lookup_expr='gte')
-    price__lte = NumberFilter(field_name='price', lookup_expr='lte')
-    make = CharFilter(lookup_expr='iexact')
-    model = CharFilter(lookup_expr='icontains')
-    year = NumberFilter()
-    transmission = ChoiceFilter(choices=CarListing.TRANSMISSION_CHOICES)
-    fuel_type = ChoiceFilter(choices=CarListing.FUEL_TYPE_CHOICES)
-    body_style = ChoiceFilter(choices=CarListing.BODY_STYLE_CHOICES)
-    seller_type = ChoiceFilter(choices=CarListing.SELLER_TYPE_CHOICES)
-    dealer = ModelChoiceFilter(queryset=Dealer.objects.all())
-    location = CharFilter(lookup_expr='icontains')
-    has_warranty = ChoiceFilter(choices=[(True, 'Yes'), (False, 'No')])
-    is_featured = ChoiceFilter(choices=[(True, 'Yes'), (False, 'No')])
 
-    class Meta:
-        model = CarListing
-        fields = ['make', 'model', 'year', 'transmission', 'fuel_type', 'body_style', 'price__gte', 'price__lte', 'seller_type', 'dealer', 'location', 'has_warranty']
-
+# ----------------------------------------
+# Car Listing ViewSet
+# ----------------------------------------
 class CarListingViewSet(viewsets.ModelViewSet):
-    queryset = CarListing.objects.all().order_by("-created_at")
+    """
+    A full CRUD ViewSet for Car Listings with filtering, ordering, and search.
+    """
+    queryset = (
+        CarListing.objects.all()
+        .select_related("manufacturer", "dealer", "seller")
+        .prefetch_related("images", "features", "equipment", "modifications", "known_flaws", "videos")
+        .order_by("-created_at")
+    )
     serializer_class = CarListingSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_class = CarListingFilter
-    search_fields = ['title', 'make', 'model', 'description', 'location']
-    ordering_fields = ['price', '-price', 'year', '-year', 'created_at', '-created_at', 'mileage']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = CarListingPagination
 
+    # Filters and ordering
+    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
+    filterset_class = CarListingFilter  # optional
+    search_fields = ["title", "make", "model", "description", "location"]
+    ordering_fields = ["price", "year", "created_at", "mileage"]
+    ordering = ["-created_at"]
+    lookup_field = "slug"
+
+    # ----------------------------------------
+    # Context
+    # ----------------------------------------
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+    # ----------------------------------------
+    # Object retrieval (safe slug support)
+    # ----------------------------------------
+    def get_object(self):
+        lookup_value = self.kwargs.get(self.lookup_field)
+        if lookup_value and lookup_value.rsplit("-", 1)[-1].isdigit():
+            listing_id = lookup_value.rsplit("-", 1)[-1]
+            base_slug = lookup_value.rsplit("-", 1)[0]
+            return get_object_or_404(CarListing, id=listing_id, slug__startswith=base_slug)
+        return super().get_object()
+
+    # ----------------------------------------
+    # Creation
+    # ----------------------------------------
+    def perform_create(self, serializer):
+        """
+        Automatically assigns the logged-in user as seller (and dealer if exists)
+        """
+        user = self.request.user if self.request.user.is_authenticated else None
+        serializer.save(seller=user)
+        logger.info(f"✅ New listing created by {user}: {serializer.instance.slug}")
+
+    # ----------------------------------------
+    # Queryset filtering with search tracking
+    # ----------------------------------------
     def get_queryset(self):
-        queryset = CarListing.objects.all().order_by("-created_at")
-        search_term = self.request.query_params.get('search', None)
+        queryset = super().get_queryset()
+        search_term = self.request.query_params.get("search")
+
         if search_term:
-            search_fields_to_check = ['title', 'make', 'model', 'description', 'location']
-            q_objects = Q()
-            for field_name in search_fields_to_check:
-                q_objects |= Q(**{f"{field_name}__icontains": search_term})
-            queryset = queryset.filter(q_objects)
-        queryset = queryset.prefetch_related('images') # Optimize for image retrieval
+            if hasattr(utils, "track_search"):
+                utils.track_search(search_term)
+            q = Q()
+            for field in self.search_fields:
+                q |= Q(**{f"{field}__icontains": search_term})
+            queryset = queryset.filter(q)
+
         return queryset
 
-    @action(detail=False, methods=['get'], url_path='suggestions')
-    def suggestions(self, request):
-        query = request.query_params.get('query', None)
-        if not query:
-            return Response([])
-
-        try:
-            suggestions_queryset = CarListing.objects.filter(make__icontains=query).distinct('make')[:10] # Increased limit
-            suggestions_queryset = suggestions_queryset.prefetch_related('images')
-            serializer = CarListingSuggestionSerializer(suggestions_queryset, many=True, context={'request': request})
-            return Response(serializer.data)
-
-        except Exception as e:
-            logger.error(f"Error fetching car listing suggestions for query '{query}': {e}", exc_info=True)
-            return Response({"error": "Internal Server Error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(detail=False, methods=['get'], url_path='featured')
-    def featured(self, request):
-        queryset = self.get_queryset().filter(is_featured=True)
+    # ----------------------------------------
+    # Pagination Helper
+    # ----------------------------------------
+    def _paginate_response(self, queryset):
         page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = self.get_serializer(page or queryset, many=True)
+        return self.get_paginated_response(serializer.data) if page else Response(serializer.data)
+
+    # ----------------------------------------
+    # Custom Actions
+    # ----------------------------------------
+    @action(detail=True, methods=["get"], url_path="similar")
+    def similar_listings(self, request, slug=None):
+        car = self.get_object()
+        if hasattr(utils, "get_similar_listings"):
+            similar = utils.get_similar_listings(car, limit=8)
+        else:
+            similar = (
+                CarListing.objects.filter(make__iexact=car.make)
+                .exclude(id=car.id)
+                .order_by("-created_at")[:8]
+            )
+        serializer = CarListingSuggestionSerializer(similar, many=True, context={"request": request})
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], url_path='new-listings')
-    def new_listings(self, request):
-        queryset = self.get_queryset().order_by('-created_at')
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    @action(detail=False, methods=["get"], url_path="featured")
+    def featured_listings(self, request):
+        return self._paginate_response(self.get_queryset().filter(is_featured=True))
 
-    @action(detail=False, methods=['get'], url_path='lowest-price')
+    @action(detail=False, methods=["get"], url_path="recent")
+    def recent_listings(self, request):
+        return self._paginate_response(self.get_queryset().order_by("-created_at"))
+
+    @action(detail=False, methods=["get"], url_path="lowest-price")
     def lowest_price(self, request):
-        queryset = self.get_queryset().order_by('price')
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._paginate_response(self.get_queryset().order_by("price"))
 
-    @action(detail=False, methods=['get'], url_path='highest-price')
+    @action(detail=False, methods=["get"], url_path="highest-price")
     def highest_price(self, request):
-        queryset = self.get_queryset().order_by('-price')
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._paginate_response(self.get_queryset().order_by("-price"))
 
-    @action(detail=False, methods=['get'], url_path='lowest-mileage')
+    @action(detail=False, methods=["get"], url_path="lowest-mileage")
     def lowest_mileage(self, request):
-        queryset = self.get_queryset().order_by('mileage')
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return self._paginate_response(self.get_queryset().order_by("mileage"))
 
-class CarListingImageViewSet(viewsets.ModelViewSet):
-    queryset = CarListingImage.objects.all()
-    serializer_class = CarListingImageSerializer
+    
+    @action(detail=False, methods=["get"], url_path="search")
+    def search_listings(self, request):
+        query = request.query_params.get("q")
+        if not query:
+            return Response({"detail": "Missing search query."}, status=status.HTTP_400_BAD_REQUEST)
+
+        q = Q()
+        for field in self.search_fields:
+            q |= Q(**{f"{field}__icontains": query})
+
+        results = self.get_queryset().filter(q)
+        if not results.exists():
+            return Response({"detail": "No results found."}, status=status.HTTP_404_NOT_FOUND)
+
+        page = self.paginate_queryset(results)
+        serializer = self.get_serializer(page or results, many=True)
+        return self.get_paginated_response(serializer.data) if page else Response(serializer.data)
+
+
+# ----------------------------------------
+# Related Models ViewSets
+# ----------------------------------------
+class BaseCarListingRelatedViewSet(viewsets.ModelViewSet):
+    """
+    Base class for related model viewsets
+    """
     filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing']
-    search_fields = ['car_listing__make', 'car_listing__model']
-    ordering_fields = ['created_at']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    search_fields = ["name"]
+    filterset_fields = ["car_listing"]
 
-class CarListingFeatureViewSet(viewsets.ModelViewSet):
+
+class CarListingImageViewSet(BaseCarListingRelatedViewSet):
+    queryset = CarListingImage.objects.all().order_by("-uploaded_at")
+    serializer_class = CarListingImageSerializer
+
+
+class CarListingFeatureViewSet(BaseCarListingRelatedViewSet):
     queryset = CarListingFeature.objects.all()
     serializer_class = CarListingFeatureSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing', 'name']
-    search_fields = ['name']
-    ordering_fields = ['name']
 
-class CarListingEquipmentViewSet(viewsets.ModelViewSet):
+
+class CarListingEquipmentViewSet(BaseCarListingRelatedViewSet):
     queryset = CarListingEquipment.objects.all()
     serializer_class = CarListingEquipmentSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing', 'name']
-    search_fields = ['name']
-    ordering_fields = ['name']
 
-class CarListingModificationViewSet(viewsets.ModelViewSet):
+
+class CarListingModificationViewSet(BaseCarListingRelatedViewSet):
     queryset = CarListingModification.objects.all()
     serializer_class = CarListingModificationSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing', 'name']
-    search_fields = ['name']
-    ordering_fields = ['name']
 
-class CarListingKnownFlawViewSet(viewsets.ModelViewSet):
+
+class CarListingKnownFlawViewSet(BaseCarListingRelatedViewSet):
     queryset = CarListingKnownFlaw.objects.all()
     serializer_class = CarListingKnownFlawSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing']
-    search_fields = ['description']
-    ordering_fields = ['id']
+    search_fields = ["description"]
 
-class CarListingVideoWalkaroundViewSet(viewsets.ModelViewSet):
+
+class CarListingVideoWalkaroundViewSet(BaseCarListingRelatedViewSet):
     queryset = CarListingVideoWalkaround.objects.all()
     serializer_class = CarListingVideoWalkaroundSerializer
-    filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_fields = ['car_listing']
-    search_fields = ['video_url']
-    ordering_fields = ['id']
+    search_fields = ["video_url"]
+
+
+# ----------------------------------------
+# Popular Tags / Suggestions (optional)
+# ----------------------------------------
+class PopularTagsView(APIView):
+    def get(self, request, *args, **kwargs):
+        if hasattr(utils, "get_popular_searches"):
+            tags = utils.get_popular_searches(limit=10)
+        else:
+            tags = []
+        return Response([{"label": t.title()} for t in tags], status=status.HTTP_200_OK)

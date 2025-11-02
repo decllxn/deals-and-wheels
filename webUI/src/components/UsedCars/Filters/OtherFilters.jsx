@@ -1,156 +1,177 @@
-import React, { useState } from 'react';
-import AccordionSection from './AccordionSection';
+import React from "react";
+import AccordionSection from "./AccordionSection";
 
-const RangeFilter = ({ label, min, max, step = 1, value, onChange }) => (
+// Reusable Range Filter component
+const RangeFilter = ({ label, min, max, step = 1, value, onChange, paramKeys }) => (
   <div className="mb-4">
     <label className="block mb-2 font-medium">{label}</label>
     <div className="flex items-center justify-between mb-2 text-sm">
       <span>{value[0]}</span>
       <span>{value[1]}</span>
     </div>
-    <input 
-      type="range" 
-      min={min} 
-      max={max} 
-      step={step} 
-      value={value[0]}
-      onChange={e => onChange([Number(e.target.value), value[1]])}
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value[0] ?? min}
+      onChange={(e) => onChange([Number(e.target.value), value[1]], paramKeys)}
       className="w-full mb-1"
     />
-    <input 
-      type="range" 
-      min={min} 
-      max={max} 
-      step={step} 
-      value={value[1]}
-      onChange={e => onChange([value[0], Number(e.target.value)])}
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value[1] ?? max}
+      onChange={(e) => onChange([value[0], Number(e.target.value)], paramKeys)}
       className="w-full"
     />
   </div>
 );
 
+// Reusable Checkbox Pill
 const CheckboxPill = ({ label, checked, onChange }) => (
   <button
+    type="button"
     onClick={() => onChange(!checked)}
-    className={`px-3 py-1 rounded-full border transition 
-      ${checked 
-        ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)]' 
-        : 'bg-transparent text-[var(--text-color)] border-[var(--border-color)]'}`}
+    className={`px-3 py-1 rounded-full border text-sm transition 
+      ${
+        checked
+          ? "bg-[var(--accent-color)] text-white border-[var(--accent-color)]"
+          : "bg-transparent text-[var(--text-color)] border-[var(--border-color)]"
+      }`}
   >
     {label}
   </button>
 );
 
-const OtherFilters = () => {
-  const [year, setYear] = useState([2010, 2024]);
-  const [price, setPrice] = useState([5000, 100000]);
-  const [mileage, setMileage] = useState([0, 200000]);
+// 🔹 Central Config
+const FILTER_CONFIG = [
+  {
+    type: "range",
+    title: "Year",
+    label: "Year Range",
+    paramKeys: ["min_year", "max_year"],
+    min: 2000,
+    max: 2025,
+    step: 1,
+  },
+  {
+    type: "range",
+    title: "Price ($)",
+    label: "Price Range",
+    paramKeys: ["min_price", "max_price"],
+    min: 1000,
+    max: 100000,
+    step: 500,
+  },
+  {
+    type: "range",
+    title: "Mileage (KM)",
+    label: "Mileage",
+    paramKeys: ["min_mileage", "max_mileage"],
+    min: 0,
+    max: 300000,
+    step: 1000,
+  },
+  {
+    type: "checkbox",
+    title: "Fuel Type",
+    paramKey: "fuel_type",
+    options: ["Petrol", "Diesel", "Hybrid", "Electric"],
+  },
+  {
+    type: "checkbox",
+    title: "Transmission",
+    paramKey: "transmission",
+    options: ["Automatic", "Manual"],
+  },
+  {
+    type: "checkbox",
+    title: "Body Type",
+    paramKey: "body_style",
+    options: ["Sedan", "SUV", "Hatchback", "Coupe", "Pickup", "Van"],
+  },
+  {
+    type: "checkbox",
+    title: "Seller Type",
+    paramKey: "seller_type",
+    options: ["Dealer", "Private Seller"],
+  },
+  {
+    type: "checkbox",
+    title: "Condition",
+    paramKey: "condition",
+    options: ["New", "Used", "Certified Pre-Owned"],
+  },
+];
 
-  const [fuel, setFuel] = useState({
-    Petrol: false,
-    Diesel: false,
-    Hybrid: false,
-    Electric: false,
-  });
+const OtherFilters = ({ filters, setFilters }) => {
+  // 🔹 Range handler
+  const handleRangeChange = (newValue, [minKey, maxKey]) => {
+    setFilters((prev) => ({
+      ...prev,
+      [minKey]: newValue[0],
+      [maxKey]: newValue[1],
+    }));
+  };
 
-  const [transmission, setTransmission] = useState({
-    Automatic: false,
-    Manual: false
-  });
+  // 🔹 Toggle handler (for checkboxes)
+  const handleToggle = (paramKey, value, checked) => {
+    setFilters((prev) => {
+      const existing = prev?.[paramKey] ? prev[paramKey].split(",") : [];
+      let updated;
 
-  const [body, setBody] = useState({
-    Sedan: false, SUV: false, Hatchback: false, Coupe: false, Pickup: false, Van: false
-  });
+      if (checked) {
+        updated = [...existing, value];
+      } else {
+        updated = existing.filter((v) => v !== value);
+      }
 
-  const [seller, setSeller] = useState({
-    Dealer: false,
-    'Private Seller': false
-  });
+      return {
+        ...prev,
+        [paramKey]: updated.length > 0 ? updated.join(",") : undefined,
+      };
+    });
+  };
 
-  const [condition, setCondition] = useState({
-    New: false,
-    Used: false,
-    'Certified Pre-Owned': false
-  });
+  const isChecked = (paramKey, value) =>
+    filters?.[paramKey]?.split(",").includes(value) ?? false;
 
   return (
     <>
-      <AccordionSection title="Year">
-        <RangeFilter label="Year Range" min={2000} max={2024} value={year} onChange={setYear} />
-      </AccordionSection>
-
-      <AccordionSection title="Price ($)">
-        <RangeFilter label="Price Range" min={1000} max={100000} step={500} value={price} onChange={setPrice} />
-      </AccordionSection>
-
-      <AccordionSection title="Mileage (KM)">
-        <RangeFilter label="Mileage" min={0} max={300000} step={1000} value={mileage} onChange={setMileage} />
-      </AccordionSection>
-
-      <AccordionSection title="Fuel Type">
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(fuel).map(type => (
-            <CheckboxPill 
-              key={type} 
-              label={type} 
-              checked={fuel[type]} 
-              onChange={(val) => setFuel(prev => ({ ...prev, [type]: val }))}
+      {FILTER_CONFIG.map((filter) =>
+        filter.type === "range" ? (
+          <AccordionSection key={filter.title} title={filter.title}>
+            <RangeFilter
+              label={filter.label}
+              min={filter.min}
+              max={filter.max}
+              step={filter.step}
+              value={[
+                filters?.[filter.paramKeys[0]] ?? filter.min,
+                filters?.[filter.paramKeys[1]] ?? filter.max,
+              ]}
+              onChange={handleRangeChange}
+              paramKeys={filter.paramKeys}
             />
-          ))}
-        </div>
-      </AccordionSection>
-
-      <AccordionSection title="Transmission">
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(transmission).map(type => (
-            <CheckboxPill 
-              key={type} 
-              label={type} 
-              checked={transmission[type]} 
-              onChange={(val) => setTransmission(prev => ({ ...prev, [type]: val }))}
-            />
-          ))}
-        </div>
-      </AccordionSection>
-
-      <AccordionSection title="Body Type">
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(body).map(type => (
-            <CheckboxPill 
-              key={type} 
-              label={type} 
-              checked={body[type]} 
-              onChange={(val) => setBody(prev => ({ ...prev, [type]: val }))}
-            />
-          ))}
-        </div>
-      </AccordionSection>
-
-      <AccordionSection title="Seller Type">
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(seller).map(type => (
-            <CheckboxPill 
-              key={type} 
-              label={type} 
-              checked={seller[type]} 
-              onChange={(val) => setSeller(prev => ({ ...prev, [type]: val }))}
-            />
-          ))}
-        </div>
-      </AccordionSection>
-
-      <AccordionSection title="Condition">
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(condition).map(type => (
-            <CheckboxPill 
-              key={type} 
-              label={type} 
-              checked={condition[type]} 
-              onChange={(val) => setCondition(prev => ({ ...prev, [type]: val }))}
-            />
-          ))}
-        </div>
-      </AccordionSection>
+          </AccordionSection>
+        ) : (
+          <AccordionSection key={filter.title} title={filter.title}>
+            <div className="flex flex-wrap gap-2">
+              {filter.options.map((opt) => (
+                <CheckboxPill
+                  key={opt}
+                  label={opt}
+                  checked={isChecked(filter.paramKey, opt)}
+                  onChange={(val) => handleToggle(filter.paramKey, opt, val)}
+                />
+              ))}
+            </div>
+          </AccordionSection>
+        )
+      )}
     </>
   );
 };

@@ -20,21 +20,23 @@ body {
 }
 
 [data-theme='dark'] {
-  /* Dark Theme */
-  --bg-color: #1f1f1f;
-  --text-color: #ffffff;
-  --accent-color: #3b82f6; /* Tailwind's blue-500 */
-  --accent-hover: #2563eb; /* blue-600 */
-  --surface-color: #2a2a2a;
-  --border-color: #444444;
-  --muted-text: #bbbbbb;
-  --highlight-color: #60a5fa; /* soft blue highlight */
+  --bg-color: #0f0f0f; /* slightly darker background */
+  --surface-color: #1a1a1a;
+  --border-color: #333333;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --text-color: #f3f3f3;
+  --muted-text: #9ca3af;
+  --highlight-color: #60a5fa;
+
+  /* Add soft glow */
+  --shadow-color: rgba(59, 130, 246, 0.2);
 }
 
 [data-theme='neutral'] {
   /* Neutral Theme - Grayish Base */
   --bg-color: #e6e6e6;           /* light neutral gray */
-  --text-color: #1e1e1e;         /* almost black */
+  --text-color: #1f1f1f;         /* almost black */
   --accent-color: #7d8597;       /* muted steel blue */
   --accent-hover: #5c6370;       /* darker cool gray */
   --surface-color: #f2f2f2;      /* soft card background */
@@ -177,4 +179,22 @@ html, body {
   --scroll-track: #1f1f1f;
   --scroll-thumb: #2a2a2a;
   --scroll-thumb-hover: #3a3a3a;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+input, textarea {
+  transition: all 0.25s ease;
+}
+
+input:focus, textarea:focus {
+  box-shadow: 0 0 8px var(--shadow-color);
 }

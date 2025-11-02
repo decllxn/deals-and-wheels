@@ -6,7 +6,7 @@ import ThemeSwitcher from "./topbar/ThemeSwitcher";
 const TopBar = ({ onSeeMoreClick }) => {
   return (
     <div
-      className="w-full px-4 sm:px-8 py-2 border-b"
+      className="w-full px-3 sm:px-6 py-1.5 border-b text-sm"
       style={{
         backgroundColor: "var(--bg-color)",
         color: "var(--text-color)",
@@ -17,9 +17,8 @@ const TopBar = ({ onSeeMoreClick }) => {
         {/* Left Buttons */}
         <LeftButtons />
 
-  
         {/* Right Side */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <SeeMoreButton onClick={onSeeMoreClick} />
           <ThemeSwitcher />
         </div>

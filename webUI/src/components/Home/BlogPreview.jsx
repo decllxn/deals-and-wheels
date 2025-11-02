@@ -1,127 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaHeart, FaEye, FaCommentDots } from 'react-icons/fa';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
-const BlogPreview = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Utilities
+const defaultImage = "https://via.placeholder.com/400x300?text=Blog";
+
+// Format ISO date string into a readable format
+const formatDate = (isoDate) => {
+  if (!isoDate) return "Date unavailable";
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  return new Date(isoDate).toLocaleDateString(undefined, options);
+};
+
+// Strip HTML tags from excerpt or content
+const stripHtml = (html) => {
+  if (!html) return "";
+  return html.replace(/<[^>]+>/g, "");
+};
+
+export default function BlogPreview() {
+  const [latestBlogs, setLatestBlogs] = useState([]);
+  const [isLoadingBlogs, setIsLoadingBlogs] = useState(true);
 
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchLatestBlogs = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/blogs/latest/');
-        const data = await response.json();
-        setBlogs(data.slice(0, 3));
+        const { data } = await axios.get(
+          "http://127.0.0.1:8000/blogs/api/latest/?count=3"
+        );
+        setLatestBlogs(data.results || data);
       } catch (error) {
-        console.error('Error fetching blogs:', error);
+        console.error("Error fetching latest blogs:", error);
       } finally {
-        setLoading(false);
+        setIsLoadingBlogs(false);
       }
     };
 
-    fetchBlogs();
+    fetchLatestBlogs();
   }, []);
 
-  if (loading) {
-    return (
-      <section className="py-20" style={{ backgroundColor: 'var(--bg-color)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-center mb-14"
-            style={{ color: 'var(--text-color)' }}
-          >
-            📝 Latest from Our Blog
-          </h2>
-          <div className="text-center" style={{ color: 'var(--text-color)' }}>
-            Loading...
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="py-20" style={{ backgroundColor: 'var(--bg-color)' }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2
-          className="text-3xl sm:text-4xl font-bold text-center mb-14"
-          style={{ color: 'var(--text-color)' }}
+    <section
+      className="px-6 md:px-16 py-20"
+      style={{ backgroundColor: "var(--bg-color)", color: "var(--text-color)" }}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold">Latest from Our Blog</h2>
+        <Link
+          to="/blogs"
+          className="flex items-center gap-2 text-sm font-medium"
+          style={{ color: "var(--accent-color)" }}
         >
-          📝 Latest from Our Blog
-        </h2>
+          View All <ArrowRight size={16} />
+        </Link>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {blogs.map((blog) => (
-            <Link
+      {/* Blog Cards */}
+      <div className="grid md:grid-cols-3 gap-8">
+        {isLoadingBlogs ? (
+          [...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="h-64 rounded-2xl animate-pulse"
+              style={{ backgroundColor: "var(--surface-color)" }}
+            />
+          ))
+        ) : latestBlogs.length > 0 ? (
+          latestBlogs.map((blog, idx) => (
+            <motion.div
               key={blog.id}
-              to={`/blog/${blog.id}`}
-              className="group rounded-xl overflow-hidden border shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.015]"
-              style={{
-                borderColor: 'var(--border-color)',
-                backgroundColor: 'var(--surface-color)',
-              }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.2 }}
+              className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition flex flex-col"
+              style={{ backgroundColor: "var(--surface-color)" }}
             >
-              <div className="relative h-56 overflow-hidden">
-                <img
-                  src={blog.image}
-                  alt={blog.title}
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              </div>
+              {/* Image */}
+              <img
+                src={blog.image || defaultImage}
+                alt={blog.title || "Blog Post"}
+                className="w-full h-48 object-cover"
+              />
 
-              <div className="p-6" style={{ color: 'var(--text-color)' }}>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-[var(--accent-color)] transition-colors line-clamp-2">
+              {/* Blog Content */}
+              <div className="p-5 flex flex-col flex-grow space-y-3">
+                <p className="text-sm" style={{ color: "var(--muted-text)" }}>
+                  {formatDate(blog.published_at || blog.created_at)}
+                </p>
+                <h3 className="font-semibold text-lg leading-tight line-clamp-2">
                   {blog.title}
                 </h3>
-
                 <p
-                  className="text-sm italic mb-4 line-clamp-2 flex items-center"
-                  style={{ color: 'var(--muted-text)' }}
+                  className="text-sm flex-grow line-clamp-2"
+                  style={{ color: "var(--muted-text)" }}
                 >
-                  <FaCommentDots className="mr-2" size={16} />
-                  &ldquo;{blog.topComment}&rdquo;
+                  {stripHtml(blog.excerpt || blog.content).slice(0, 100) + "..."}
                 </p>
 
-                <div
-                  className="flex justify-between text-sm mt-auto"
-                  style={{ color: 'var(--muted-text)' }}
+                <Link
+                  to={`/blogs/${blog.slug}`}
+                  className="flex items-center gap-1 text-sm font-medium mt-auto"
+                  style={{ color: "var(--accent-color)" }}
                 >
-                  <div className="flex items-center">
-                    <FaEye className="mr-1" style={{ color: 'var(--highlight-color)' }} />
-                    {blog.views.toLocaleString()} Views
-                  </div>
-                  <div className="flex items-center">
-                    <FaHeart className="mr-1" style={{ color: 'var(--accent-color)' }} />
-                    {blog.likes.toLocaleString()} Likes
-                  </div>
-                </div>
+                  Read more <ArrowRight size={14} />
+                </Link>
               </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="flex justify-center mt-10">
-          <Link
-            to="/blogs"
-            className="inline-block py-3 px-6 text-lg font-semibold rounded-lg transition-colors duration-300"
-            style={{
-              backgroundColor: 'var(--accent-color)',
-              color: 'white',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--accent-hover)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--accent-color)';
-            }}
+            </motion.div>
+          ))
+        ) : (
+          <div
+            className="flex flex-col items-center justify-center p-8 rounded-lg bg-opacity-70 col-span-3"
+            style={{ backgroundColor: "var(--surface-color)" }}
           >
-            See More Blogs
-          </Link>
-        </div>
+            <BookOpen className="w-12 h-12 mb-4" style={{ color: "var(--text-color)" }} />
+            <p className="text-lg font-medium">No blog posts found.</p>
+            <p className="text-sm mt-2">Check back for new posts!</p>
+          </div>
+        )}
       </div>
     </section>
   );
-};
-
-export default BlogPreview;
+}

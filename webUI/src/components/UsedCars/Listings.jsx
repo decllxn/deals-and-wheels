@@ -1,40 +1,95 @@
-import React from 'react';
-import Card from './Card';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import Card from "./Card";
+import CarPagination from "./CarPagination";
+import { fetchListings } from "../../api2";
 
-// Dummy placeholder data
-const cars = [
-  { id: 1, make: 'Toyota', model: 'Corolla', year: 2020, price: 15000, mileage: 40000, location: 'Nairobi', image: '/landcruiser.jpg' },
-  { id: 2, make: 'BMW', model: 'X5', year: 2018, price: 30000, mileage: 60000, location: 'Mombasa', image: '/testcar.jpg' },
-  { id: 3, make: 'Honda', model: 'Civic', year: 2022, price: 20000, mileage: 10000, location: 'Kisumu', image: '/f40.jpg' },
-  { id: 4, make: 'Mercedes', model: 'C-Class', year: 2021, price: 35000, mileage: 20000, location: 'Nairobi', image: 'https://via.placeholder.com/300x200' },
-  { id: 5, make: 'Ford', model: 'Focus', year: 2019, price: 17000, mileage: 50000, location: 'Eldoret', image: 'https://via.placeholder.com/300x200' },
-  { id: 6, make: 'Audi', model: 'A4', year: 2020, price: 25000, mileage: 30000, location: 'Nakuru', image: 'https://via.placeholder.com/300x200' }
-];
+const Listings = ({ filters = {}, filtersOpen, onCountChange }) => {
+  const [cars, setCars] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [count, setCount] = useState(0);
 
-// Slug function
-const createCarSlug = (car) => {
-  const slugify = str => str.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-  return `${slugify(car.make)}-${slugify(car.model)}-${car.year}-${car.id}`;
-};
+  // ✅ Reset to page 1 whenever filters change
+  useEffect(() => {
+    setPage(1);
+  }, [JSON.stringify(filters)]);
 
-const Listings = ({ filtersOpen }) => {
-  return (
-    <div className={`grid gap-6 
-      ${filtersOpen 
-        ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3' 
-        : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4'
-      }`}
-    >
-      {cars.map(car => {
-        const slug = createCarSlug(car);
-        return (
-          <Link key={car.id} to={`/deals/${slug}`}>
-            <Card car={car} />
-          </Link>
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const loadCars = async () => {
+      setLoading(true);
+      setError("");
+
+      try {
+        const data = await fetchListings(
+          "",
+          { ...filters, ordering: "-created_at" },
+          page,
+          pageSize,
+          controller.signal
         );
-      })}
-    </div>
+
+        setCars(data?.results ?? []);
+        setCount(data?.count ?? 0);
+
+        // ✅ Inform parent of count
+        if (onCountChange) onCountChange(data?.count ?? 0);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Failed to fetch used cars", err);
+          setError("Something went wrong. Please try again later.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCars();
+    return () => controller.abort();
+  }, [JSON.stringify(filters), page, pageSize]);
+
+  const totalPages = Math.ceil(count / pageSize);
+
+  // ✅ Adjust columns based on sidebar open/closed
+  const gridCols = filtersOpen
+    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3"
+    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+  if (loading) {
+    return (
+      <div className={`grid gap-6 mt-6 ${gridCols}`}>
+        {Array.from({ length: pageSize }).map((_, i) => (
+          <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500 mt-6 font-medium">{error}</p>;
+  }
+
+  if (!cars.length) {
+    return (
+      <p className="text-center text-gray-500 mt-6 text-lg">
+        No cars match your filters. Please adjust your search criteria.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <div className={`grid gap-6 mt-6 ${gridCols}`}>
+        {cars.map((car) => (
+          <Card key={car.id} car={car} />
+        ))}
+      </div>
+
+      <CarPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+    </>
   );
 };
 

@@ -1,35 +1,42 @@
-import React from 'react';
-import { CheckCircle, XCircle } from 'lucide-react';
+import React from "react";
+import { CheckCircle } from "lucide-react";
 
-export default function VehicleFeatures({ comfortFeatures, safetyFeatures }) {
-  const renderFeature = (label, hasFeature) => (
-    <div key={label} className="flex items-center gap-2">
-      {hasFeature ? (
-        <CheckCircle className="w-4 h-4 text-[var(--accent-color)]" />
-      ) : (
-        <XCircle className="w-4 h-4 text-[var(--border-color)] opacity-50" />
-      )}
-      <span>{label}</span>
-    </div>
-  );
-
+export default function VehicleFeatures({ features = [], equipment = [] }) {
   return (
     <div className="mt-12">
-      <h2 className="text-xl font-semibold mb-6 text-[var(--text-color)]">Vehicle Features</h2>
+      <h2 className="text-xl font-semibold mb-6 text-[var(--text-color)]">
+        Features & Equipment
+      </h2>
 
-      <div className="mb-6">
-        <h3 className="font-medium mb-3 text-[var(--text-color)]">Comfort & Convenience</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          {comfortFeatures.map(({ label, value }) => renderFeature(label, value))}
+      {/* --- Features --- */}
+      {features?.length > 0 && (
+        <div className="mb-6">
+          <h3 className="font-medium mb-3 text-[var(--text-color)]">Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {features.map((feat) => (
+              <div key={feat.id} className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[var(--accent-color)]" />
+                <span>{feat.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div>
-        <h3 className="font-medium mb-3 text-[var(--text-color)]">Safety & Assistance</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          {safetyFeatures.map(({ label, value }) => renderFeature(label, value))}
+      {/* --- Equipment --- */}
+      {equipment?.length > 0 && (
+        <div>
+          <h3 className="font-medium mb-3 text-[var(--text-color)]">Equipment</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {equipment.map((eq) => (
+              <div key={eq.id} className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[var(--accent-color)]" />
+                <span>{eq.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

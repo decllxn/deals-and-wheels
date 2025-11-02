@@ -123,9 +123,15 @@ def recommended_blogs(request, blog_id):
 # ✅ Latest Blogs
 @api_view(["GET"])
 def latest_blog_post(request):
-    latest_blogs = Blog.objects.filter(is_published=True).order_by("-created_at")[:3]
-    if not latest_blogs:
+    # Allow dynamic count via query param (?count=5)
+    count = int(request.query_params.get("count", 3))
+
+    # Fetch latest published blogs
+    latest_blogs = Blog.objects.filter(is_published=True).order_by("-published_at")[:count]
+
+    if not latest_blogs.exists():
         return Response({"detail": "No blogs found."}, status=404)
+
     serializer = BlogSerializer(latest_blogs, many=True)
     return Response(serializer.data)
 

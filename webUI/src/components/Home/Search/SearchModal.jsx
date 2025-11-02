@@ -1,80 +1,87 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import SearchResultsGrid from './SearchResultsGrid';
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import SearchResultsGrid from "./SearchResultsGrid";
+import { usePopularTags } from "../../../hooks/usePopularTags";
+import { useSuggestions } from "../../../hooks/useSuggestions";
+import { useSearch } from "../../../hooks/useSearch";
 
 const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery }) => {
-  const [searchResults, setSearchResults] = useState([]);
+  // Popular tags
+  const { data: popularTags = [], isLoading: loadingPopular } = usePopularTags();
 
-  const popularSearches = ['BMW', 'Audi A1', 'SUVs', 'Ford Kuga'];
-  const popularMakes = ['Audi', 'Kia', 'Hyundai', 'Volvo'];
-  const carTypes = ['SUVs', 'Hatchbacks', 'Saloons', 'Estates'];
+  // Dynamic suggestions
+  const { data: suggestions = {}, isLoading: loadingSuggestions } = useSuggestions(
+    searchQuery,
+    null,
+    { enabled: searchQuery.length >= 2 }
+  );
 
-  // Lock background scroll when modal is open
+  // Search results
+  const {
+    data: searchResults = { results: [] },
+    refetch: triggerSearch,
+    isFetching: loadingResults,
+  } = useSearch(searchQuery, {}, { enabled: false });
+
+  // 🔹 Normalize API data safely
+  const normalizeItems = (items) => {
+    if (!Array.isArray(items)) return [];
+    return items.map((item) => {
+      if (typeof item === "string") return item;
+      if (item?.label) return item.label;
+      if (item?.name) return item.name;
+      return "";
+    }).filter(Boolean);
+  };
+
+  const safeSuggestions = {
+    makes: normalizeItems(suggestions?.makes),
+    car_types: normalizeItems(suggestions?.car_types),
+    popular_searches: normalizeItems(suggestions?.popular_searches),
+  };
+
+  const safeResults = Array.isArray(searchResults?.results)
+    ? searchResults.results
+    : [];
+
+  // Prevent background scroll
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => (document.body.style.overflow = "");
   }, [isOpen]);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
-
-    const mockResults = Array.from({ length: 6 }, (_, i) => ({
-      id: i + 1,
-      title: `${searchQuery} Result ${i + 1}`,
-      description: `This is a placeholder description for ${searchQuery} result ${i + 1}.`,
-    }));
-
-    setSearchResults(mockResults);
+    triggerSearch();
   };
 
-  const renderSuggestions = () => (
-    <div className="mt-6 space-y-4">
-      <SuggestionGroup title="Popular searches" items={popularSearches} />
-      <SuggestionGroup title="Popular makes" items={popularMakes} />
-      <SuggestionGroup title="Car types" items={carTypes} />
-
-      <div className="pt-2 border-t border-gray-200 dark:border-neutral-700">
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-          Not sure what you’re looking for?
-        </p>
-        <button
-          onClick={() => alert('Redirect to quiz')}
-          className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-        >
-          Take the quiz
-        </button>
+  const SuggestionGroup = ({ title, items }) => {
+    if (!Array.isArray(items) || items.length === 0) return null;
+    return (
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+          {title}
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {items.map((text, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                if (!text) return;
+                setSearchQuery(text);
+                handleSearch();
+              }}
+              className="bg-gray-200 dark:bg-neutral-600 text-gray-800 dark:text-gray-100 px-3 py-1 text-sm rounded-full hover:bg-gray-300 dark:hover:bg-neutral-500 transition"
+            >
+              {text}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-
-  const SuggestionGroup = ({ title, items }) => (
-    <div>
-      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-        {title}
-      </h3>
-      <div className="flex flex-wrap gap-2">
-        {items.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              setSearchQuery(item);
-              handleSearch();
-            }}
-            className="bg-gray-200 dark:bg-neutral-600 text-gray-800 dark:text-gray-100 px-3 py-1 text-sm rounded-full hover:bg-gray-300 dark:hover:bg-neutral-500 transition"
-          >
-            {item}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <AnimatePresence>
@@ -105,24 +112,35 @@ const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery }) => {
               Advanced Search
             </h2>
 
+            {/* Search Input */}
             <input
               type="text"
               autoFocus
               placeholder="Type to search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSearch();
-                }
-              }}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="w-full px-4 py-3 rounded-lg bg-gray-100 dark:bg-neutral-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
-            {searchQuery.trim() === '' && searchResults.length === 0 ? (
-              renderSuggestions()
+            {/* Suggestions vs Results */}
+            {searchQuery.trim() === "" && safeResults.length === 0 ? (
+              <div className="mt-6 space-y-6">
+                <SuggestionGroup
+                  title="Popular searches"
+                  items={loadingPopular ? ["Loading..."] : normalizeItems(popularTags)}
+                />
+                <SuggestionGroup title="Popular makes" items={safeSuggestions.makes} />
+                <SuggestionGroup title="Car types" items={safeSuggestions.car_types} />
+              </div>
+            ) : loadingResults ? (
+              <p className="mt-4 text-gray-500 dark:text-gray-300">Loading...</p>
+            ) : safeResults.length > 0 ? (
+              <SearchResultsGrid results={safeResults} />
             ) : (
-              <SearchResultsGrid results={searchResults} />
+              <p className="mt-4 text-gray-500 dark:text-gray-300">
+                No results found. Try a different keyword.
+              </p>
             )}
           </motion.div>
         </motion.div>

@@ -1,0 +1,11 @@
+Hi {{ user.first_name }},
+
+Your recent payment of {{ amount }} could not be processed.
+
+Reason: {{ reason }}
+
+Please verify your payment method or try again from your dashboard.
+
+If the issue persists, contact our support team.
+
+— The {{ settings.SITE_NAME|default:"Your Company" }} Team

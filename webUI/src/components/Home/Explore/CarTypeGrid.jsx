@@ -1,27 +1,57 @@
-// components/ExploreCars/CarTypeGrid.jsx
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FaCar } from 'react-icons/fa'; // fallback icon
+import React from "react";
+import { Link } from "react-router-dom";
+import { FaCar } from "react-icons/fa"; // fallback icon if PNG is missing
 
 const CarTypeGrid = ({ carTypes }) => (
   <div className="mb-20 md:mb-24">
-    <h3 className="text-2xl font-semibold text-gray-800 mb-8">Browse by Body Type</h3>
+    <h3
+      className="text-2xl font-semibold mb-8"
+      style={{ color: "var(--text-color)" }}
+    >
+      Browse by Body Type
+    </h3>
+
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
       {carTypes.map((type, index) => (
         <Link
           to={`/cars/type/${type.name.toLowerCase()}`}
           key={index}
-          className="flex items-center justify-center bg-gray-100 p-4 md:p-5 rounded-lg hover:bg-gray-200 transition-all duration-200"
+          className="flex flex-col items-center justify-center p-4 md:p-5 rounded-lg transition-all duration-200"
+          style={{
+            backgroundColor: "var(--surface-color)",
+            color: "var(--text-color)",
+            border: "1px solid var(--border-color)",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "var(--highlight-color)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "var(--surface-color)")
+          }
         >
-          <div className="text-gray-700 text-xl md:text-2xl mr-3">
-            {type.iconClass ? (
-              <i className={`${type.iconClass} text-2xl md:text-3xl`} aria-hidden="true"></i>
+          <div className="w-12 h-12 mb-3 flex items-center justify-center">
+            {type.iconSrc ? (
+              <img
+                src={type.iconSrc}
+                alt={type.name}
+                className="w-12 h-12 object-contain"
+                style={{ filter: "invert(var(--invert-icons, 0))" }} // 👈 respect theme
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"; // hide broken image
+                  e.currentTarget.parentNode.innerHTML =
+                    `<svg class="w-12 h-12" style="color: var(--text-color);" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h18v-2H3v2zm0 6h18v-2H3v2zm0-12h18V5H3v2z"/></svg>`;
+                }}
+              />
             ) : (
-              <FaCar className="w-7 h-7" />
+              <FaCar className="w-12 h-12" style={{ color: "var(--text-color)" }} />
             )}
           </div>
-          <span className="text-gray-800 font-medium text-base md:text-lg">{type.name}</span>
+          <span
+            className="font-medium text-base md:text-lg text-center"
+            style={{ color: "var(--text-color)" }}
+          >
+            {type.name}
+          </span>
         </Link>
       ))}
     </div>

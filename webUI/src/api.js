@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BASE_URL } from "./constants";
 
-// Create an Axios instance
+// Create a reusable Axios instance for all non-auth endpoints
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -9,57 +9,22 @@ const api = axios.create({
   },
 });
 
-// Function to register a user
-export const registerUser = async (email, password, confirmPassword) => {
-  try {
-    const response = await api.post("/accounts/register/api/", {
-      email,
-      password,
-      password2: confirmPassword,
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
-
-// Function to log in a user
-export const loginUser = async (email, password) => {
-  try {
-    const response = await api.post("/accounts/token/api/", {
-      email,
-      password,
-    });
-    return response.data; // Returns tokens (access & refresh)
-  } catch (error) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
-
-// Function to refresh the token
-export const refreshToken = async (refreshToken) => {
-  try {
-    const response = await api.post("/accounts/token/refresh/api/", {
-      refresh: refreshToken,
-    });
-    return response.data; // Returns new access token
-  } catch (error) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
+/* -------------------------------------------------------------------------- */
+/* 🚗 AUCTIONS                                                                */
+/* -------------------------------------------------------------------------- */
 
 // Fetch featured cars
 export const fetchFeaturedCars = async () => {
   try {
     const response = await api.get("/auctions/auctions/?featured=true");
-    return response.data.results || response.data; // Handle paginated and non-paginated responses
+    return response.data.results || response.data;
   } catch (error) {
     console.error("Error fetching featured cars:", error);
     return [];
   }
 };
 
-// Fetch car images for a specific auction
+// Fetch images for a specific auction
 export const fetchAuctionImages = async (auctionId) => {
   try {
     const response = await api.get(`/auctions/auctions/${auctionId}/`);
@@ -70,10 +35,10 @@ export const fetchAuctionImages = async (auctionId) => {
   }
 };
 
-// Fetch all auctions with optional search and filters
+// Fetch all auctions with optional filters
 export const fetchAuctions = async (query = "", filters = {}, page = 1, pageSize = 16) => {
   try {
-    const params = { search: query, page: page, page_size: pageSize, ...filters };
+    const params = { search: query, page, page_size: pageSize, ...filters };
     const response = await api.get("/auctions/auctions/", { params });
     return response.data;
   } catch (error) {
@@ -82,10 +47,10 @@ export const fetchAuctions = async (query = "", filters = {}, page = 1, pageSize
   }
 };
 
-// Fetch ending soon auctions
+// Fetch auctions ending soon
 export const fetchEndingSoonAuctions = async (page = 1, pageSize = 16) => {
   try {
-    const params = { page: page, page_size: pageSize };
+    const params = { page, page_size: pageSize };
     const response = await api.get("/auctions/auctions/ending-soon/", { params });
     return response.data;
   } catch (error) {
@@ -94,10 +59,10 @@ export const fetchEndingSoonAuctions = async (page = 1, pageSize = 16) => {
   }
 };
 
-// Fetch new listings auctions
+// Fetch new listings
 export const fetchNewListingsAuctions = async (page = 1, pageSize = 16) => {
   try {
-    const params = { page: page, page_size: pageSize };
+    const params = { page, page_size: pageSize };
     const response = await api.get("/auctions/auctions/new-listings/", { params });
     return response.data;
   } catch (error) {
@@ -106,14 +71,14 @@ export const fetchNewListingsAuctions = async (page = 1, pageSize = 16) => {
   }
 };
 
-// Fetch no reserve auctions
+// Fetch no-reserve auctions
 export const fetchNoReserveAuctions = async (page = 1, pageSize = 16) => {
   try {
-    const params = { page: page, page_size: pageSize };
+    const params = { page, page_size: pageSize };
     const response = await api.get("/auctions/auctions/no-reserve/", { params });
     return response.data;
   } catch (error) {
-    console.error("Error fetching no reserve auctions:", error);
+    console.error("Error fetching no-reserve auctions:", error);
     throw error.response ? error.response.data : error.message;
   }
 };
@@ -121,7 +86,7 @@ export const fetchNoReserveAuctions = async (page = 1, pageSize = 16) => {
 // Fetch lowest mileage auctions
 export const fetchLowestMileageAuctions = async (page = 1, pageSize = 16) => {
   try {
-    const params = { page: page, page_size: pageSize };
+    const params = { page, page_size: pageSize };
     const response = await api.get("/auctions/auctions/lowest-mileage/", { params });
     return response.data;
   } catch (error) {
@@ -133,7 +98,7 @@ export const fetchLowestMileageAuctions = async (page = 1, pageSize = 16) => {
 // Fetch nearest auctions
 export const fetchNearestAuctions = async (latitude, longitude, page = 1, pageSize = 16) => {
   try {
-    const params = { latitude, longitude, page: page, page_size: pageSize };
+    const params = { latitude, longitude, page, page_size: pageSize };
     const response = await api.get("/auctions/auctions/nearest/", { params });
     return response.data;
   } catch (error) {
@@ -142,7 +107,7 @@ export const fetchNearestAuctions = async (latitude, longitude, page = 1, pageSi
   }
 };
 
-// Fetch details for a specific auction
+// Fetch specific auction details
 export const fetchAuctionDetails = async (auctionId) => {
   try {
     const response = await api.get(`/auctions/auctions/${auctionId}/`);
@@ -153,10 +118,14 @@ export const fetchAuctionDetails = async (auctionId) => {
   }
 };
 
-// Fetch reviews with optional filters and pagination
+/* -------------------------------------------------------------------------- */
+/* ⭐ REVIEWS                                                                 */
+/* -------------------------------------------------------------------------- */
+
+// Fetch reviews with optional filters
 export const fetchReviews = async (filters = {}, page = 1, pageSize = 10) => {
   try {
-    const params = { page: page, page_size: pageSize, ...filters };
+    const params = { page, page_size: pageSize, ...filters };
     const response = await api.get("/auctions/reviews/", { params });
     return response.data;
   } catch (error) {
@@ -168,7 +137,7 @@ export const fetchReviews = async (filters = {}, page = 1, pageSize = 10) => {
 // Fetch reviews for a specific auction
 export const fetchAuctionReviews = async (auctionId, page = 1, pageSize = 10) => {
   try {
-    const params = { auction: auctionId, page: page, page_size: pageSize };
+    const params = { auction: auctionId, page, page_size: pageSize };
     const response = await api.get("/auctions/reviews/", { params });
     return response.data;
   } catch (error) {
@@ -177,13 +146,13 @@ export const fetchAuctionReviews = async (auctionId, page = 1, pageSize = 10) =>
   }
 };
 
-// Function to create a new review
+// Create a new review
 export const createReview = async (auctionId, rating, comment) => {
   try {
     const response = await api.post("/auctions/reviews/", {
       auction: auctionId,
-      rating: rating,
-      comment: comment,
+      rating,
+      comment,
     });
     return response.data;
   } catch (error) {

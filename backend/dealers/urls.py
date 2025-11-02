@@ -1,9 +1,29 @@
-# dealers/urls.py
+from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
+from .views import (
+    DealerSignupView,
+    DealerViewSet,
+    DealerRatingViewSet,
+    DealerListingsView,
+    MyDealerListingsView,
+)
 
+# 🔹 Router for viewsets
 router = DefaultRouter()
-router.register(r'api', views.DealerViewSet, basename='dealer')
-router.register(r'api-rating', views.DealerRatingViewSet, basename='dealer-rating') # Optional
+router.register(r"dealers", DealerViewSet, basename="dealer")
+router.register(r"dealer-ratings", DealerRatingViewSet, basename="dealer-rating")
 
-urlpatterns = router.urls
+# 🔹 Custom endpoints for listings
+urlpatterns = [
+    # Dealer registration endpoint
+    path("signup/", DealerSignupView.as_view(), name="dealer-signup"),
+
+    # Listings belonging to a specific dealer (public)
+    path("dealers/<int:dealer_id>/listings/", DealerListingsView.as_view(), name="dealer-listings"),
+
+    # Logged-in dealer's own listings (private)
+    path("my/listings/", MyDealerListingsView.as_view(), name="my-dealer-listings"),
+
+    # Include router-based endpoints (dealers + ratings)
+    path("", include(router.urls)),
+]
