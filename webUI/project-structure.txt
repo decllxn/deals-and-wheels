@@ -1,0 +1,393 @@
+.
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── project-structure.txt
+├── public
+│   ├── 745.jpg
+│   ├── 745.jpg:Zone.Identifier
+│   ├── Brand_logos
+│   │   ├── Lexus.png
+│   │   ├── abt.png
+│   │   ├── acura.png
+│   │   ├── alpharomeo.png
+│   │   ├── alpina.png
+│   │   ├── aston-martin.png
+│   │   ├── audi.png
+│   │   ├── bentley.png
+│   │   ├── bmw-m.png
+│   │   ├── bmw.png
+│   │   ├── brabus.png
+│   │   ├── bugatti.png
+│   │   ├── buick.png
+│   │   ├── byd.png
+│   │   ├── cadillac.png
+│   │   ├── chevrolet.png
+│   │   ├── chrylser.png
+│   │   ├── dacia.png
+│   │   ├── daihatsu.png
+│   │   ├── dodge.png
+│   │   ├── ds.png
+│   │   ├── ferrari.png
+│   │   ├── ford.png
+│   │   ├── general-motors.png
+│   │   ├── genesis.png
+│   │   ├── gmc.png
+│   │   ├── hino.png
+│   │   ├── honda.png
+│   │   ├── hummer.png
+│   │   ├── hyundai.png
+│   │   ├── infiniti.png
+│   │   ├── isuzu.png
+│   │   ├── jaguar.png
+│   │   ├── jeep.png
+│   │   ├── karma.png
+│   │   ├── kia.png
+│   │   ├── koenigsegg.png
+│   │   ├── lada.png
+│   │   ├── lamborghini.svg
+│   │   ├── land-rover.png
+│   │   ├── lincoln.png
+│   │   ├── lucid.png
+│   │   ├── mansory.png
+│   │   ├── maserati.png
+│   │   ├── maybach.png
+│   │   ├── mazda.png
+│   │   ├── mclaren.png
+│   │   ├── mercedes-amg.png
+│   │   ├── mercedes.png
+│   │   ├── mini.png
+│   │   ├── mitsubishi.png
+│   │   ├── nissan-nismo.png
+│   │   ├── nissan.png
+│   │   ├── opel.png
+│   │   ├── pagani.png
+│   │   ├── peugeot.png
+│   │   ├── pontiac.png
+│   │   ├── porsche.png
+│   │   ├── renault.png
+│   │   ├── rimac.png
+│   │   ├── rollsroyce.jpg
+│   │   ├── saleen.png
+│   │   ├── saturn.png
+│   │   ├── scania.png
+│   │   ├── seat.png
+│   │   ├── skoda.png
+│   │   ├── ssangyong.png
+│   │   ├── sterling.png
+│   │   ├── subaru.png
+│   │   ├── suzuki.png
+│   │   ├── tata.png
+│   │   ├── tesla.png
+│   │   ├── toyota-crown.png
+│   │   ├── toyota.png
+│   │   ├── vauxhall.png
+│   │   ├── volkswagen.png
+│   │   ├── volkswagen.svg
+│   │   └── volvo.png
+│   ├── CEO.jpg
+│   ├── authentication.png
+│   ├── authentication.png:Zone.Identifier
+│   ├── blog.jpg
+│   ├── blue-isolated-car.png
+│   ├── blue-isolated-car.png:Zone.Identifier
+│   ├── buying-car.jpg
+│   ├── cars.mp4
+│   ├── contact-us.png
+│   ├── contact-us.png:Zone.Identifier
+│   ├── dealerhandshake.png
+│   ├── dealerhandshake.png:Zone.Identifier
+│   ├── f40.jpg
+│   ├── facebook.png
+│   ├── facebook.png:Zone.Identifier
+│   ├── ferrari-bg.jpg
+│   ├── handshake.jpg
+│   ├── hero-car.png
+│   ├── instagram.png
+│   ├── instagram.png:Zone.Identifier
+│   ├── keys.jpg
+│   ├── landcruiser.jpg
+│   ├── pngs
+│   │   ├── Convertible.png
+│   │   ├── Convertible.png:Zone.Identifier
+│   │   ├── Coupe.png
+│   │   ├── Coupe.png:Zone.Identifier
+│   │   ├── Mini-van.png
+│   │   ├── Mini-van.png:Zone.Identifier
+│   │   ├── SUV.png
+│   │   ├── SUV.png:Zone.Identifier
+│   │   ├── Sedan.png
+│   │   ├── Sedan.png:Zone.Identifier
+│   │   ├── Station-wagon.png
+│   │   ├── Station-wagon.png:Zone.Identifier
+│   │   ├── hatchback.png
+│   │   ├── hatchback.png:Zone.Identifier
+│   │   ├── pickup-truck.png
+│   │   └── pickup-truck.png:Zone.Identifier
+│   ├── red-car.png
+│   ├── reviews.png
+│   ├── reviews.png:Zone.Identifier
+│   ├── reviews1.png:Zone.Identifier
+│   ├── rs6.jpeg:Zone.Identifier
+│   ├── senna.jpeg:Zone.Identifier
+│   ├── shocks.jpeg
+│   ├── testcar.jpg
+│   ├── tiktok.png
+│   ├── tiktok.png:Zone.Identifier
+│   ├── vehiclesblog.jpg
+│   ├── vite.svg
+│   ├── whatsapp.png
+│   ├── whatsapp.png:Zone.Identifier
+│   ├── youtube.png
+│   └── youtube.png:Zone.Identifier
+├── rebrand.txt
+├── src
+│   ├── App.jsx
+│   ├── api
+│   │   ├── Listings.js
+│   │   ├── URL.js
+│   │   ├── authApi.js
+│   │   ├── blogApi.js
+│   │   └── dealerApi.js
+│   ├── api.js
+│   ├── api2.js
+│   ├── app
+│   │   ├── App.jsx
+│   │   ├── layout
+│   │   ├── providers
+│   │   └── routes
+│   ├── assets
+│   │   ├── fonts
+│   │   ├── icons
+│   │   ├── images
+│   │   └── react.svg
+│   ├── components
+│   │   ├── About
+│   │   │   ├── About.jsx
+│   │   │   ├── FAQsection.jsx
+│   │   │   ├── FounderCEO.jsx
+│   │   │   ├── HeroIntro.jsx
+│   │   │   ├── OurMission.jsx
+│   │   │   ├── OurVision.jsx
+│   │   │   ├── WhatWeDo.jsx
+│   │   │   ├── WhoWeAre.jsx
+│   │   │   └── WhyChooseUs.jsx
+│   │   ├── Blog
+│   │   │   ├── AdBanner.jsx
+│   │   │   ├── Categories.jsx
+│   │   │   ├── HeroSection.jsx
+│   │   │   ├── LatestPosts.jsx
+│   │   │   ├── RecommendedReads.jsx
+│   │   │   └── TrendingArticles.jsx
+│   │   ├── Blog-detail
+│   │   │   ├── BlogContent.jsx
+│   │   │   ├── BlogDetail.jsx
+│   │   │   └── BlogHeader.jsx
+│   │   ├── BuyersDashboard
+│   │   │   ├── DashboardHome.jsx
+│   │   │   ├── DashboardLayout.jsx
+│   │   │   ├── HorizontalSidebar.jsx
+│   │   │   ├── ListingsManager.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── Topbar.jsx
+│   │   │   └── WhyBuy.jsx
+│   │   ├── Contact
+│   │   │   ├── Contact.jsx
+│   │   │   ├── ContactForm.jsx
+│   │   │   ├── ContactHero.jsx
+│   │   │   ├── ContactInfoCards.jsx
+│   │   │   └── SupportLinks.jsx
+│   │   ├── Editorial
+│   │   │   ├── CarBrandGrid.jsx
+│   │   │   ├── Editorial.jsx
+│   │   │   ├── EditorialBlogSection.jsx
+│   │   │   ├── EditorialNewsSection.jsx
+│   │   │   ├── EditorialReviewSection.jsx
+│   │   │   └── HeroSection.jsx
+│   │   ├── ForDealers
+│   │   │   ├── DealerDashboard
+│   │   │   ├── DealerDashboardPreview.jsx
+│   │   │   ├── DealerRegistration
+│   │   │   ├── DealerSuccessStories.jsx
+│   │   │   ├── FaqSection.jsx
+│   │   │   ├── FinalCallToAction.jsx
+│   │   │   ├── ForDealers.jsx
+│   │   │   ├── ForDealersHero.jsx
+│   │   │   ├── HowItWorks.jsx
+│   │   │   ├── PricingSection.jsx
+│   │   │   └── WhyJoin.jsx
+│   │   ├── Home
+│   │   │   ├── BlogPreview.jsx
+│   │   │   ├── CarFilterDropdowns.jsx
+│   │   │   ├── CarsForSaleFilter.jsx
+│   │   │   ├── Explore
+│   │   │   ├── FeaturedCarsSlider.jsx
+│   │   │   ├── ListingCard.jsx
+│   │   │   ├── ListingGrid.jsx
+│   │   │   ├── Pagination.jsx
+│   │   │   ├── ReviewPreview.jsx
+│   │   │   └── Search
+│   │   ├── Profile
+│   │   │   ├── BidHistorySection.jsx
+│   │   │   ├── DashboardSection.jsx
+│   │   │   ├── Profile.jsx
+│   │   │   ├── ProfileInfo.jsx
+│   │   │   ├── UserAuctionComments.jsx
+│   │   │   ├── UserCarsForSaleComments.jsx
+│   │   │   └── UserCommunities.jsx
+│   │   ├── Reviews
+│   │   │   ├── Carbrands.js
+│   │   │   ├── HeroWithSearch.jsx
+│   │   │   └── Reviews.jsx
+│   │   ├── ReviewsDetails
+│   │   │   ├── RelatedReviews.jsx
+│   │   │   ├── ReviewContent.jsx
+│   │   │   ├── ReviewDetails.jsx
+│   │   │   └── ReviewMetadata.jsx
+│   │   ├── Sale
+│   │   │   └── CarsForSale.jsx
+│   │   ├── Sell
+│   │   │   ├── CarShowcasePreview.jsx
+│   │   │   ├── FAQSection.jsx
+│   │   │   ├── HeroSection.jsx
+│   │   │   ├── PricingTool.jsx
+│   │   │   ├── SecurePaymentSection.jsx
+│   │   │   ├── SellCar.jsx
+│   │   │   ├── SellerDashboardPreview.jsx
+│   │   │   ├── SellingOptions.jsx
+│   │   │   ├── StepsToSell.jsx
+│   │   │   ├── Testimonials.jsx
+│   │   │   └── WhySellWithUs.jsx
+│   │   ├── SellersDashboard
+│   │   │   ├── DashboardHome.jsx
+│   │   │   ├── DashboardLayout.jsx
+│   │   │   ├── HorizontalSidebar.jsx
+│   │   │   ├── ListingsManager.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── Topbar.jsx
+│   │   │   └── WhySell.jsx
+│   │   ├── Spares
+│   │   │   ├── ListingCard.jsx
+│   │   │   ├── ListingGrid.jsx
+│   │   │   ├── MakeModelSearch.jsx
+│   │   │   ├── ProductsBrands.jsx
+│   │   │   ├── SpareParts.jsx
+│   │   │   └── SparePartsFilter.jsx
+│   │   ├── UsedCarDetails
+│   │   │   ├── CarDetailsHero.jsx
+│   │   │   ├── DealerInfo.jsx
+│   │   │   ├── FinanceCalculator.jsx
+│   │   │   ├── FinanceOffer.jsx
+│   │   │   ├── ImageGallery.jsx
+│   │   │   ├── InsuranceQuote.jsx
+│   │   │   ├── SidebarDrawer.jsx
+│   │   │   ├── SimilarListings.jsx
+│   │   │   ├── UsedCarDetails.jsx
+│   │   │   ├── VehicleDetails.jsx
+│   │   │   └── VehicleFeatures.jsx
+│   │   ├── UsedCars
+│   │   │   ├── CarPagination.jsx
+│   │   │   ├── Card.jsx
+│   │   │   ├── Filters
+│   │   │   ├── Listings.jsx
+│   │   │   ├── UsedCars.jsx
+│   │   │   └── UsedCarsHero.jsx
+│   │   ├── UserSettings
+│   │   │   └── Settings.jsx
+│   │   ├── WatchList
+│   │   │   ├── AuctionsWatchlist.jsx
+│   │   │   ├── CarsForSaleSortingFiltering.jsx
+│   │   │   ├── CarsForSaleWatchlist.jsx
+│   │   │   ├── FeaturedCarCard.jsx
+│   │   │   ├── FeaturedCarListings.jsx
+│   │   │   ├── SortingFiltering.jsx
+│   │   │   └── WatchList.jsx
+│   │   ├── Weblayout
+│   │   │   ├── AuthModal
+│   │   │   ├── DesktopMenu.jsx
+│   │   │   ├── Footer.jsx
+│   │   │   ├── HamburgerMenuButton.jsx
+│   │   │   ├── MobileMenu.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── PageWrapper.jsx
+│   │   │   ├── Preloader.jsx
+│   │   │   ├── ProfileDropdown.jsx
+│   │   │   ├── ProgressBar.jsx
+│   │   │   ├── ScrollToTop.jsx
+│   │   │   ├── Sidebar
+│   │   │   ├── TopBar.jsx
+│   │   │   ├── WhyDealsAndWheels.jsx
+│   │   │   └── topbar
+│   │   ├── chat
+│   │   │   ├── Chat.jsx
+│   │   │   ├── ConversationHeader.jsx
+│   │   │   ├── ConversationList.jsx
+│   │   │   ├── MessageInput.jsx
+│   │   │   ├── MessageItem.jsx
+│   │   │   └── MessageThread.jsx
+│   │   ├── manufacturer
+│   │   │   ├── AboutManufacturer.jsx
+│   │   │   ├── Blogs.jsx
+│   │   │   ├── CarListings.jsx
+│   │   │   ├── FAQ.jsx
+│   │   │   ├── Manufacturer.jsx
+│   │   │   ├── ManufacturerHero.jsx
+│   │   │   ├── ManufacturerList.jsx
+│   │   │   ├── News.jsx
+│   │   │   ├── ReviewArticles.jsx
+│   │   │   ├── Reviews.jsx
+│   │   │   └── listings
+│   │   └── ui
+│   ├── constants
+│   │   └── categoryMap.js
+│   ├── constants.js
+│   ├── context
+│   │   ├── AuthContext.jsx
+│   │   ├── ChatContext.jsx
+│   │   └── ThemeContext.jsx
+│   ├── css
+│   │   └── Reviews.css
+│   ├── hooks
+│   │   ├── useListings.js
+│   │   ├── usePopularTags.js
+│   │   ├── useSearch.js
+│   │   └── useSuggestions.js
+│   ├── main.css
+│   ├── main.jsx
+│   ├── pages
+│   │   ├── AboutPage.jsx
+│   │   ├── ArticlePage.jsx
+│   │   ├── BlogDetailPage.jsx
+│   │   ├── BlogHome.jsx
+│   │   ├── BuyCarPage.jsx
+│   │   ├── BuyersDashBoard.jsx
+│   │   ├── CarQuizPage.jsx
+│   │   ├── CarsForSalePage.jsx
+│   │   ├── ChatPage.jsx
+│   │   ├── ContactPage.jsx
+│   │   ├── DashboardPage.jsx
+│   │   ├── DealerSignupPage.jsx
+│   │   ├── EditorialPage.jsx
+│   │   ├── ForDealersPage.jsx
+│   │   ├── Home.jsx
+│   │   ├── ProfilePage.jsx
+│   │   ├── ReviewsDetails.jsx
+│   │   ├── ReviewsPage.jsx
+│   │   ├── SellACar.jsx
+│   │   ├── SellersDashBoard.jsx
+│   │   ├── SettingsPage.jsx
+│   │   ├── UsedCarDetailsPage.jsx
+│   │   ├── UsedCarsPage.jsx
+│   │   ├── WatchListPage.jsx
+│   │   └── manufacturer
+│   │       ├── ManufacturerListPage.jsx
+│   │       └── ManufacturerPage.jsx
+│   ├── theme.css
+│   └── utils
+│       └── formatting.js
+├── tailwind.config.js
+└── vite.config.js
+
+54 directories, 337 files
