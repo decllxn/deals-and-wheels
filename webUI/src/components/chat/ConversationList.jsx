@@ -1,4 +1,4 @@
-// src/components/ConversationList.jsx
+// src/pages/chat/ConversationList.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
@@ -18,7 +18,6 @@ export default function ConversationList() {
 
   useEffect(() => {
     if (!access) return;
-
     const fetchConversations = async () => {
       try {
         setLoading(true);
@@ -33,7 +32,6 @@ export default function ConversationList() {
         setLoading(false);
       }
     };
-
     fetchConversations();
   }, [access]);
 
@@ -42,23 +40,15 @@ export default function ConversationList() {
     setMessages([]);
   };
 
-  const handleNewChat = () => {
-    alert("Start a new chat modal coming soon!");
-  };
-
-  const handleSettings = () => {
-    alert("Settings panel coming soon!");
-  };
+  const handleNewChat = () => alert("Start a new chat modal coming soon!");
+  const handleSettings = () => alert("Settings panel coming soon!");
 
   const renderAvatar = (name) => {
     const initial = name ? name.charAt(0).toUpperCase() : "?";
     return (
       <div
-        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow"
-        style={{
-          backgroundColor: "var(--accent-color)",
-          flexShrink: 0,
-        }}
+        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow"
+        style={{ backgroundColor: "var(--accent-color)", flexShrink: 0 }}
       >
         {initial}
       </div>
@@ -71,35 +61,52 @@ export default function ConversationList() {
         p.email.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-
     if (activeTab === "Unread") {
       filtered = filtered.filter((c) => !c.last_message?.read);
     }
-
     return filtered;
   }, [conversations, searchTerm, activeTab]);
 
-  if (loading) return <p>Loading conversations...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!conversations.length) return <p>No conversations yet.</p>;
+  if (loading) return <p className="px-4 py-6 text-center">Loading conversations...</p>;
+  if (error)
+    return <p className="px-4 py-6 text-center text-red-500">{error}</p>;
+  if (!conversations.length)
+    return <p className="px-4 py-6 text-center">No conversations yet.</p>;
 
   return (
     <div
-      className="w-full max-w-md border rounded-xl shadow-lg p-5 flex flex-col"
-      style={{ backgroundColor: "var(--surface-color)", borderColor: "var(--border-color)" }}
+      className="w-full max-w-md border rounded-xl shadow-lg flex flex-col overflow-hidden"
+      style={{
+        backgroundColor: "var(--surface-color)",
+        borderColor: "var(--border-color)",
+        height: "calc(100vh - 120px)",
+        maxHeight: "calc(100vh - 120px)",
+      }}
     >
       {/* Header Section */}
-      <ConversationHeader
-        onNewChat={handleNewChat}
-        onSettings={handleSettings}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <div
+        className="shrink-0 border-b px-4 py-3"
+        style={{ borderColor: "var(--border-color)" }}
+      >
+        <ConversationHeader
+          onNewChat={handleNewChat}
+          onSettings={handleSettings}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      </div>
 
-      {/* Conversation List */}
-      <ul className="space-y-3 overflow-y-auto max-h-[70vh] pr-1 scrollbar-thin">
+      {/* Scrollable List */}
+      <ul
+        className="flex-1 overflow-y-auto space-y-2 px-4 py-3 
+                   scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+        style={{
+          backgroundColor: "var(--surface-color)",
+          WebkitOverflowScrolling: "touch", // smooth mobile scroll
+        }}
+      >
         {filteredConversations.map((convo) => {
           const otherParticipants = convo.participants.filter(
             (p) => p.email !== user?.email
@@ -110,28 +117,25 @@ export default function ConversationList() {
           return (
             <li
               key={convo.id}
-              className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-all duration-200 shadow-sm ${
+              className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all duration-200 shadow-sm ${
                 isActive
                   ? "bg-[var(--highlight-color)] border-l-4 border-[var(--accent-color)]"
                   : "hover:bg-[var(--bg-color)]"
               }`}
               onClick={() => handleSelect(convo)}
             >
-              {/* Avatar */}
               {renderAvatar(otherParticipants[0]?.email || "U")}
 
-              {/* Name + Last Message */}
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 <span
-                  className="font-semibold text-md truncate"
+                  className="font-medium text-sm truncate"
                   style={{ color: "var(--text-color)" }}
                 >
                   {otherParticipants.map((p) => p.email).join(", ")}
                 </span>
-
                 {lastMsg && (
                   <p
-                    className="text-sm truncate mt-1"
+                    className="text-xs truncate mt-0.5"
                     style={{ color: "var(--muted-text)" }}
                   >
                     {lastMsg.text?.length > 60
@@ -141,10 +145,9 @@ export default function ConversationList() {
                 )}
               </div>
 
-              {/* Timestamp */}
               {lastMsg && (
                 <span
-                  className="text-xs ml-2 flex-shrink-0"
+                  className="text-[10px] ml-2 flex-shrink-0"
                   style={{ color: "var(--muted-text)" }}
                 >
                   {new Date(lastMsg.created_at).toLocaleTimeString([], {

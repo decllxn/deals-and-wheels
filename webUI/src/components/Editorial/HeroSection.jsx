@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 export default function HeroSection() {
   return (
-    <section className="bg-[var(--bg-color)] text-[var(--text-color)] py-20 px-6 md:px-16 relative overflow-hidden mt-23">
+    <section className="bg-[var(--bg-color)] text-[var(--text-color)] py-20 px-6 md:px-16 relative overflow-hidden">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center relative z-10">
         {/* Left Content */}
         <motion.div
@@ -59,7 +59,6 @@ export default function HeroSection() {
 
       {/* Background Accent */}
       <div className="absolute top-[-5rem] right-[-5rem] w-[300px] h-[300px] bg-[var(--accent-color)] rounded-full blur-3xl opacity-30 z-0" />
-      <div className="absolute bottom-[-4rem] left-[-4rem] w-[200px] h-[200px] bg-[var(--accent-hover)] rounded-full blur-2xl opacity-30 z-0" />
     </section>
   );
 }

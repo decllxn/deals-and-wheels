@@ -1,46 +1,65 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Preloader = () => {
-  const [dotProgress, setDotProgress] = useState(0);
-  const dotInterval = useRef(null);
+export default function Preloader() {
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    dotInterval.current = setInterval(() => {
-      setDotProgress((prev) => (prev + 1) % 4);
-    }, 300);
-
-    return () => clearInterval(dotInterval.current);
+    // Simulate loading complete after 2.2s
+    const timer = setTimeout(() => setIsVisible(false), 2200);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 w-full h-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center z-50 opacity-95 transition-opacity duration-300 ease-in-out">
-      <div className="relative w-24 h-12">
-        {/* Chassis */}
-        <div className="absolute bottom-0 left-4 w-16 h-4 bg-blue-500 dark:bg-blue-400 rounded-md shadow-md"></div>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center 
+                     bg-[var(--surface-color)] dark:bg-gray-950"
+        >
+          {/* Spinning logo */}
+          <motion.img
+            src="/pngs/Zamara-logo-icon.png"
+            alt="Zamara logo"
+            className="w-16 h-16 object-contain drop-shadow-xl"
+            animate={{ rotate: 360 }}
+            transition={{
+              repeat: Infinity,
+              duration: 1.8,
+              ease: "linear",
+            }}
+          />
 
-        {/* Cabin */}
-        <div className="absolute top-2 left-6 w-12 h-4 bg-gray-300 dark:bg-gray-700 rounded-t-md">
-          <div className="absolute inset-0 bg-blue-200 dark:bg-blue-600 opacity-20 rounded-t-md animate-shine"></div>
-        </div>
+          {/* Brand text */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="mt-6 text-sm font-medium tracking-[0.15em] uppercase 
+                       text-[var(--muted-text)] dark:text-gray-400"
+          >
+            Loading
+          </motion.p>
 
-        {/* Wheels */}
-        <div className="absolute bottom-0 left-0 w-6 h-6 bg-gray-700 dark:bg-gray-800 rounded-full flex items-center justify-center animate-spin-slow">
-          <div className="w-3 h-3 rounded-full bg-gray-50 dark:bg-gray-900 animate-pulse-wheel"></div>
-        </div>
-        <div className="absolute bottom-0 right-0 w-6 h-6 bg-gray-700 dark:bg-gray-800 rounded-full flex items-center justify-center animate-spin-slow delay-150">
-          <div className="w-3 h-3 rounded-full bg-gray-50 dark:bg-gray-900 animate-pulse-wheel delay-150"></div>
-        </div>
-
-        {/* Subtle Light Beam (Optional - adds a touch of dynamism) */}
-        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-6 bg-blue-300 dark:bg-blue-500 opacity-0 animate-fade-in-out-short rounded-full"></div>
-      </div>
-
-      {/* Loading Text with Subtle Animation */}
-      <div className="absolute bottom-8 text-gray-600 dark:text-gray-400 text-sm font-medium tracking-wide animate-fade-in-up">
-        Loading{'.'.repeat(dotProgress)}
-      </div>
-    </div>
+          {/* Soft glow / ambient aura */}
+          <motion.div
+            className="absolute w-40 h-40 rounded-full bg-[var(--accent-color)]/15 blur-3xl"
+            initial={{ scale: 0.6, opacity: 0.5 }}
+            animate={{
+              scale: [0.6, 1, 0.6],
+              opacity: [0.4, 0.7, 0.4],
+            }}
+            transition={{
+              repeat: Infinity,
+              duration: 3,
+              ease: "easeInOut",
+            }}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
-};
-
-export default Preloader
+}

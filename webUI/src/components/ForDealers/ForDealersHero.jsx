@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const ForDealersHero = () => {
   return (
     <section
-      className="relative overflow-hidden py-20 px-6 md:px-16 flex flex-col md:flex-row items-center justify-between mt-15"
+      className="relative overflow-hidden py-20 px-6 md:px-16 flex flex-col md:flex-row items-center justify-between"
       style={{
         backgroundColor: "var(--bg-color)",
         color: "var(--text-color)",

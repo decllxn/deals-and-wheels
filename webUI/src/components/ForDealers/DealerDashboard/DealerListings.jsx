@@ -1,4 +1,3 @@
-// src/pages/dealer-dashboard/DealerListings.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import ListingCard from "./ListingCard";
@@ -13,10 +12,12 @@ export default function DealerListings({ listings = [], loading, onDelete }) {
       className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
     >
       {loading ? (
-        <p className="text-center col-span-full py-10">Loading listings...</p>
+        <p className="text-center col-span-full py-10 text-[var(--muted-text)]">
+          Loading listings...
+        </p>
       ) : listings.length === 0 ? (
         <p className="text-center col-span-full py-10 text-[var(--muted-text)]">
-          No listings available.
+          No listings available yet.
         </p>
       ) : (
         listings.map((car) => (

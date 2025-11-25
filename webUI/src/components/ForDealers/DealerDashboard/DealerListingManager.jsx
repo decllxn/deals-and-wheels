@@ -1,4 +1,3 @@
-// src/pages/dealer-dashboard/DealerListingManager.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,7 +6,7 @@ import DealerListings from "./DealerListings";
 import DealerAddListingForm from "./DealerAddListingForm";
 import { useAuth } from "../../../context/AuthContext";
 
-const API_BASE = "http://127.0.0.1:8000/dealers/api/";
+const API_BASE = "http://127.0.0.1:8000/vehicles";
 
 export default function DealerListingManager({ dealerId = null }) {
   const { access, user } = useAuth();
@@ -18,18 +17,23 @@ export default function DealerListingManager({ dealerId = null }) {
 
   // ---------------- FETCH LISTINGS ----------------
   const fetchListings = async () => {
+    if (!access) return;
+
     try {
       setLoading(true);
       setError("");
 
+      // ✅ If dealerId provided => fetch public listings for that dealer
+      // else => fetch logged-in dealer's own listings
       const url = dealerId
-        ? `${API_BASE}dealers/${dealerId}/listings/`
-        : `${API_BASE}my/listings/`;
+        ? `${API_BASE}/listings/?dealer=${dealerId}`
+        : `${API_BASE}/listings/my/`;
 
-      const headers = access ? { Authorization: `Bearer ${access}` } : {};
+      const headers = { Authorization: `Bearer ${access}` };
       const { data } = await axios.get(url, { headers });
 
-      setListings(data);
+      // Handle paginated responses or array
+      setListings(Array.isArray(data) ? data : data.results || []);
     } catch (err) {
       console.error("Error fetching listings:", err);
       setError("Failed to load listings. Please try again later.");
@@ -47,10 +51,9 @@ export default function DealerListingManager({ dealerId = null }) {
     if (!window.confirm("Are you sure you want to delete this listing?")) return;
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/vehicles/api/listings/${id}/`,
-        { headers: { Authorization: `Bearer ${access}` } }
-      );
+      await axios.delete(`${API_BASE}/listings/${id}/`, {
+        headers: { Authorization: `Bearer ${access}` },
+      });
       setListings((prev) => prev.filter((l) => l.id !== id));
     } catch (err) {
       console.error("Delete failed:", err);
@@ -74,7 +77,7 @@ export default function DealerListingManager({ dealerId = null }) {
             </h1>
             {!dealerId && user && (
               <p className="text-sm text-[var(--muted-text)]">
-                Welcome back, {user?.company_name || user?.name || user?.email}
+                Welcome back, {user?.company_name || user?.name || user?.email || "Dealer"}
               </p>
             )}
           </div>
@@ -138,9 +141,7 @@ export default function DealerListingManager({ dealerId = null }) {
                 transition={{ duration: 0.3 }}
               >
                 <DealerAddListingForm
-                  onSuccess={(newListing) =>
-                    setListings((prev) => [newListing, ...prev])
-                  }
+                  onSuccess={(newListing) => setListings((prev) => [newListing, ...prev])}
                   setTab={setTab}
                 />
               </motion.div>

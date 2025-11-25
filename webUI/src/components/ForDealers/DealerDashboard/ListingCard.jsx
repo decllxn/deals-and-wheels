@@ -1,18 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Trash2 } from "lucide-react";
-import {
-  FaTachometerAlt,
-  FaGasPump,
-  FaMapMarkerAlt,
-  FaCar,
-} from "react-icons/fa";
+import { Trash2, MapPin, Gauge, Fuel, CheckCircle2, XCircle, Edit2 } from "lucide-react";
+import DealerEditListingModal from "./DealerEditListingModal";
 
 export default function ListingCard({ car, onDelete }) {
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
   if (!car) return null;
 
   const {
-    title,
+    id,
+    slug,
+    images,
     make,
     model,
     year,
@@ -21,107 +21,167 @@ export default function ListingCard({ car, onDelete }) {
     transmission,
     fuel_type,
     location,
+    has_warranty,
+    is_featured,
     is_sold,
-    images,
+    dealer,
+    seller_type,
+    drivetrain,
+    body_style,
     created_at,
+    title,
   } = car;
 
-  const imageUrl =
-    images && images.length > 0
-      ? images[0].image
-      : "https://via.placeholder.com/400x250?text=No+Image";
+  const carSlug = slug || `${make || "car"}-${model || ""}-${year || ""}-${id || ""}`
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+
+  const imageUrl = images?.[0]?.image || "/placeholder-car.jpg";
+  const transmissionIcon = "/icons/gear-shift.png";
+  const drivetrainIcon = "/icons/steering-wheel.png";
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -3 }}
-      transition={{ type: "spring", stiffness: 220, damping: 18 }}
-      className="relative bg-[var(--surface-color)] text-[var(--text-color)] border border-[var(--border-color)] rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col"
-    >
-      {/* Image Section */}
-      <div className="relative">
-        <img
-          src={imageUrl}
-          alt={title || `${make} ${model}`}
-          className="w-full h-48 object-cover rounded-t-xl"
+    <>
+      <motion.div
+        whileHover={{ scale: 1.015 }}
+        transition={{ type: "spring", stiffness: 260, damping: 18 }}
+        className="relative group flex flex-col bg-[var(--surface-color)]/75 backdrop-blur-md rounded-2xl 
+          border border-[var(--border-color)]/40 shadow-[0_4px_20px_rgba(0,0,0,0.05)] 
+          hover:shadow-[0_6px_28px_rgba(0,0,0,0.08)] overflow-hidden transition-all duration-300"
+      >
+        {/* Delete & Edit Buttons */}
+        {onDelete && (
+          <div className="absolute top-3 right-3 z-10 flex gap-2">
+            <button
+              onClick={() => setIsEditOpen(true)}
+              className="bg-blue-500/90 hover:bg-blue-600 text-white rounded-full p-2 shadow-md transition"
+              title="Edit Listing"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button
+              onClick={onDelete}
+              className="bg-red-500/90 hover:bg-red-600 text-white rounded-full p-2 shadow-md transition"
+              title="Delete Listing"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
+
+        <Link to={`/listings/${carSlug}`} className="flex flex-col h-full">
+          {/* Image Section */}
+          <div className="relative overflow-hidden">
+            <img
+              src={imageUrl}
+              alt={title || `${make} ${model}`}
+              className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+            />
+
+            {/* Badges */}
+            {is_featured && (
+              <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-medium 
+                bg-[var(--accent-color)]/85 text-white backdrop-blur-sm">
+                Featured
+              </div>
+            )}
+            {is_sold && (
+              <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium 
+                bg-red-500/85 text-white backdrop-blur-sm">
+                Sold
+              </div>
+            )}
+            {!is_sold && !onDelete && body_style && (
+              <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full text-xs font-medium 
+                bg-[var(--highlight-color)]/90 text-[var(--text-color)] backdrop-blur-sm">
+                {body_style}
+              </div>
+            )}
+          </div>
+
+          {/* Body */}
+          <div className="flex flex-col flex-grow p-4 space-y-2">
+            <h3 className="text-lg font-semibold leading-snug text-[var(--text-color)] line-clamp-2">
+              {title || `${year || ""} ${make || ""} ${model || ""}`}
+            </h3>
+
+            {/* Dealer Info */}
+            {dealer?.name && (
+              <p className="text-sm text-[var(--muted-text)]">
+                <span className="font-medium text-[var(--accent-color)]">{dealer.name}</span>{" "}
+                • {seller_type || "Dealer"}
+              </p>
+            )}
+
+            {/* Key Specs */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-[var(--muted-text)]">
+              {location && (
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={16} strokeWidth={1.5} />
+                  <span>{location}</span>
+                </div>
+              )}
+              {mileage && (
+                <div className="flex items-center gap-1.5">
+                  <Gauge size={16} strokeWidth={1.5} />
+                  <span>{mileage.toLocaleString()} km</span>
+                </div>
+              )}
+              {fuel_type && (
+                <div className="flex items-center gap-1.5">
+                  <Fuel size={16} strokeWidth={1.5} />
+                  <span>{fuel_type}</span>
+                </div>
+              )}
+              {transmission && (
+                <div className="flex items-center gap-1.5">
+                  <img src={transmissionIcon} alt="Transmission" className="w-4 h-4 opacity-80" />
+                  <span>{transmission}</span>
+                </div>
+              )}
+              {drivetrain && (
+                <div className="flex items-center gap-1.5">
+                  <img src={drivetrainIcon} alt="Drivetrain" className="w-4 h-4 opacity-80" />
+                  <span>{drivetrain}</span>
+                </div>
+              )}
+              {has_warranty !== undefined && (
+                <div className="flex items-center gap-1.5">
+                  {has_warranty ? (
+                    <CheckCircle2 size={16} strokeWidth={1.5} className="text-green-600" />
+                  ) : (
+                    <XCircle size={16} strokeWidth={1.5} className="text-red-500" />
+                  )}
+                  <span>{has_warranty ? "Warranty" : "No Warranty"}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Price */}
+            <div className="mt-auto pt-3 text-2xl font-semibold text-[var(--accent-color)]">
+              {price ? `KSh ${Math.round(price).toLocaleString()}` : "Price on Request"}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 py-2 text-xs border-t border-[var(--border-color)]/40 text-[var(--muted-text)] flex justify-between items-center">
+            <span>
+              Listed: {created_at ? new Date(created_at).toLocaleDateString() : "Unavailable"}
+            </span>
+            {onDelete && <span className="italic text-[var(--accent-color)] font-medium">Dealer</span>}
+          </div>
+        </Link>
+      </motion.div>
+
+      {/* Edit Modal */}
+      {isEditOpen && (
+        <DealerEditListingModal
+          car={car}
+          onClose={() => setIsEditOpen(false)}
         />
-
-        {/* Delete Button */}
-        <button
-          onClick={onDelete}
-          className="absolute top-3 right-3 bg-red-500/90 hover:bg-red-600 text-white rounded-full p-2 shadow-md transition"
-          title="Delete Listing"
-        >
-          <Trash2 size={16} />
-        </button>
-
-        {/* Status Badge */}
-        <div className="absolute bottom-3 left-3">
-          <span
-            className={`px-3 py-1 text-xs font-semibold rounded-full shadow-md ${
-              is_sold
-                ? "bg-red-500/90 text-white"
-                : "bg-green-500/90 text-white"
-            }`}
-          >
-            {is_sold ? "Sold" : "Available"}
-          </span>
-        </div>
-      </div>
-
-      {/* Body Section */}
-      <div className="p-4 flex flex-col justify-between flex-grow space-y-2">
-        <h3 className="text-lg font-semibold line-clamp-2">
-          {title || `${year || ""} ${make || ""} ${model || ""}`}
-        </h3>
-
-        {/* Meta Info */}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--muted-text)]">
-          {location && (
-            <div className="flex items-center gap-1">
-              <FaMapMarkerAlt className="text-[var(--accent-color)]" size={13} />{" "}
-              {location}
-            </div>
-          )}
-          {mileage && (
-            <div className="flex items-center gap-1">
-              <FaTachometerAlt className="text-[var(--accent-color)]" size={13} />{" "}
-              {mileage.toLocaleString()} km
-            </div>
-          )}
-          {fuel_type && (
-            <div className="flex items-center gap-1">
-              <FaGasPump className="text-[var(--accent-color)]" size={13} />{" "}
-              {fuel_type}
-            </div>
-          )}
-          {transmission && (
-            <div className="flex items-center gap-1">
-              <FaCar className="text-[var(--accent-color)]" size={13} />{" "}
-              {transmission}
-            </div>
-          )}
-        </div>
-
-        {/* Price */}
-        <div className="mt-2 text-xl font-bold text-[var(--accent-color)]">
-          {price
-            ? `KSh ${Math.round(price).toLocaleString()}`
-            : "Price on Request"}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-4 py-2 bg-[var(--highlight-color)] border-t border-[var(--border-color)] text-xs text-[var(--muted-text)] flex justify-between items-center">
-        <span>
-          Listed:{" "}
-          {created_at
-            ? new Date(created_at).toLocaleDateString()
-            : "Recently Added"}
-        </span>
-        <span className="italic text-[var(--accent-color)] font-medium">
-          Dealer
-        </span>
-      </div>
-    </motion.div>
+      )}
+    </>
   );
 }

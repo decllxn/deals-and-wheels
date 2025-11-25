@@ -15,7 +15,7 @@ const FiltersContainer = ({ appliedFilters, setAppliedFilters }) => {
 
   return (
     <div
-      className="p-4 rounded shadow-md sticky top-20 w-72"
+      className="p-4 rounded shadow-md w-72"
       style={{
         backgroundColor: "var(--surface-color)",
         color: "var(--text-color)",

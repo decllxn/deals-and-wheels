@@ -43,7 +43,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="py-20 px-6 md:px-16 relative overflow-hidden mt-20"
+      className="py-20 px-6 md:px-16 relative overflow-hidden"
       style={{ backgroundColor: "var(--bg-color)", color: "var(--text-color)" }}
     >
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 items-center relative z-10">
@@ -117,10 +117,6 @@ export default function HeroSection() {
       <div
         className="absolute top-[-5rem] right-[-5rem] w-[300px] h-[300px] rounded-full blur-3xl opacity-30 z-0"
         style={{ backgroundColor: "var(--accent-color)" }}
-      />
-      <div
-        className="absolute bottom-[-4rem] left-[-4rem] w-[200px] h-[200px] rounded-full blur-2xl opacity-30 z-0"
-        style={{ backgroundColor: "var(--highlight-color)" }}
       />
 
       {/* Divider */}

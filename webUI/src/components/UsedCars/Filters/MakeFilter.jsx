@@ -9,12 +9,17 @@ const MakeFilter = ({ filters, setFilters }) => {
     const fetchMakes = async () => {
       try {
         const res = await fetch(
-          "http://127.0.0.1:8000/vehicles/listings/suggestions/?category=make&q="
+          "http://127.0.0.1:8000/vehicles/listings/?category=make&q="
         );
         if (!res.ok) throw new Error("Failed to fetch makes");
         const data = await res.json();
 
-        setMakes((data.makes || []).sort());
+        // Extract unique makes from results
+        const uniqueMakes = [
+          ...new Set(data.results.map((item) => item.make).filter(Boolean)),
+        ].sort();
+
+        setMakes(uniqueMakes);
       } catch (error) {
         console.error("Error fetching makes:", error);
       } finally {

@@ -4,51 +4,38 @@
 @custom-variant neutral (&:where([data-theme=neutral], [data-theme=neutral] *));
 
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 :root {
-  /* Default fallback theme (light) */
-  --bg-color: #fdfdfd;
+  --bg-color: #FFFFFF;
+  --surface-color: #FFFFFF;
+
   --text-color: #000000;
-  --accent-color: #e63946; /* dominant red */
-  --accent-hover: #d62828;
-  --surface-color: #ffffff;
-  --border-color: #dddddd;
+  
+  --accent-color: #2BBEF4;
+  --accent-hover: #1AA9DB;
+  --highlight-color: #A8E8FA;
+
+  --border-color: #EAEAEA;
   --muted-text: #555555;
-  --highlight-color: #ffb4a2; /* warm highlight */
+  
+  --shadow-color: rgba(0, 0, 0, 0.08);
 }
 
-[data-theme='dark'] {
-  --bg-color: #0f0f0f; /* slightly darker background */
-  --surface-color: #1a1a1a;
-  --border-color: #333333;
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
-  --text-color: #f3f3f3;
-  --muted-text: #9ca3af;
-  --highlight-color: #60a5fa;
-
-  /* Add soft glow */
-  --shadow-color: rgba(59, 130, 246, 0.2);
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
 }
 
-[data-theme='neutral'] {
-  /* Neutral Theme - Grayish Base */
-  --bg-color: #e6e6e6;           /* light neutral gray */
-  --text-color: #1f1f1f;         /* almost black */
-  --accent-color: #7d8597;       /* muted steel blue */
-  --accent-hover: #5c6370;       /* darker cool gray */
-  --surface-color: #f2f2f2;      /* soft card background */
-  --border-color: #cfcfcf;       /* subtle border */
-  --muted-text: #555555;
-  --highlight-color: #a29ea5;    /* soft lavender-gray */
-}
+
 
 html, body {
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 

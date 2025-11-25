@@ -27,14 +27,12 @@ export default function MessageInput({
     try {
       setSending(true);
 
-      // REST POST for reliability
       const res = await axios.post(`${API_BASE}/messages/send/`, payload, {
         headers: { Authorization: `Bearer ${access}` },
       });
 
       const newMsg = res.data;
 
-      // WebSocket optional dispatch
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(newMsg));
       }
@@ -50,17 +48,11 @@ export default function MessageInput({
   };
 
   return (
-    <div
-      className="flex flex-col border-t pt-3 mt-auto"
-      style={{
-        borderColor: "var(--border-color)",
-        backgroundColor: "var(--surface-color)",
-      }}
-    >
+    <div className="flex flex-col gap-2">
       {/* Quoted Message Preview */}
       {quotedMessage && (
         <div
-          className="flex items-start justify-between rounded-lg p-2 mb-2"
+          className="flex items-start justify-between rounded-lg p-2"
           style={{
             backgroundColor: "var(--highlight-color)",
             color: "var(--text-color)",
@@ -78,7 +70,7 @@ export default function MessageInput({
         </div>
       )}
 
-      {/* Input Field & Send Button */}
+      {/* Input Field */}
       <div className="flex items-center gap-3">
         <input
           type="text"
@@ -87,7 +79,7 @@ export default function MessageInput({
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           disabled={sending}
-          className="flex-1 rounded-full px-4 py-2 text-sm shadow-sm transition-all duration-200 focus:ring-2 outline-none"
+          className="flex-1 rounded-full px-4 py-2 text-sm focus:ring-2 outline-none transition-all duration-200"
           style={{
             backgroundColor: "var(--bg-color)",
             color: "var(--text-color)",

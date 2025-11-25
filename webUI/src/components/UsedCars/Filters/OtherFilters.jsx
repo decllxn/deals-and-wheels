@@ -1,114 +1,74 @@
 import React from "react";
 import AccordionSection from "./AccordionSection";
 
-// Reusable Range Filter component
-const RangeFilter = ({ label, min, max, step = 1, value, onChange, paramKeys }) => (
-  <div className="mb-4">
-    <label className="block mb-2 font-medium">{label}</label>
-    <div className="flex items-center justify-between mb-2 text-sm">
-      <span>{value[0]}</span>
-      <span>{value[1]}</span>
-    </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value[0] ?? min}
-      onChange={(e) => onChange([Number(e.target.value), value[1]], paramKeys)}
-      className="w-full mb-1"
-    />
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value[1] ?? max}
-      onChange={(e) => onChange([value[0], Number(e.target.value)], paramKeys)}
-      className="w-full"
-    />
-  </div>
-);
+// 🔹 Minimal Range Input — no label above, users type directly
+const RangeInput = ({ min, max, step = 1, value, onChange, paramKeys, unit = "" }) => {
+  const handleInput = (index, newVal) => {
+    const numericVal = Number(newVal);
+    if (isNaN(numericVal)) return;
 
-// Reusable Checkbox Pill
+    let newValues = [...value];
+    newValues[index] = Math.min(max, Math.max(min, numericVal));
+    onChange(newValues, paramKeys);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value[0]}
+        onChange={(e) => handleInput(0, e.target.value)}
+        className="flex-1 px-2 py-1 text-sm border-b border-[var(--border-color)] text-[var(--text-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]"
+        placeholder="Min"
+      />
+      <span className="text-[var(--muted-text)] font-medium">—</span>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value[1]}
+        onChange={(e) => handleInput(1, e.target.value)}
+        className="flex-1 px-2 py-1 text-sm border-b border-[var(--border-color)] text-[var(--text-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]"
+        placeholder="Max"
+      />
+      {unit && <span className="text-sm text-[var(--muted-text)]">{unit}</span>}
+    </div>
+  );
+};
+
+// 🔹 Checkbox Pill — subtle, responsive
 const CheckboxPill = ({ label, checked, onChange }) => (
   <button
     type="button"
     onClick={() => onChange(!checked)}
-    className={`px-3 py-1 rounded-full border text-sm transition 
-      ${
-        checked
-          ? "bg-[var(--accent-color)] text-white border-[var(--accent-color)]"
-          : "bg-transparent text-[var(--text-color)] border-[var(--border-color)]"
+    className={`px-3 py-1 rounded-full text-sm font-medium transition whitespace-nowrap
+      ${checked
+        ? "bg-[var(--accent-color)] text-white border border-[var(--accent-color)]"
+        : "bg-transparent text-[var(--text-color)] border border-[var(--border-color)] hover:bg-[var(--highlight-color)] hover:text-white"
       }`}
   >
     {label}
   </button>
 );
 
-// 🔹 Central Config
+// 🔹 Central Filter Configuration
 const FILTER_CONFIG = [
-  {
-    type: "range",
-    title: "Year",
-    label: "Year Range",
-    paramKeys: ["min_year", "max_year"],
-    min: 2000,
-    max: 2025,
-    step: 1,
-  },
-  {
-    type: "range",
-    title: "Price ($)",
-    label: "Price Range",
-    paramKeys: ["min_price", "max_price"],
-    min: 1000,
-    max: 100000,
-    step: 500,
-  },
-  {
-    type: "range",
-    title: "Mileage (KM)",
-    label: "Mileage",
-    paramKeys: ["min_mileage", "max_mileage"],
-    min: 0,
-    max: 300000,
-    step: 1000,
-  },
-  {
-    type: "checkbox",
-    title: "Fuel Type",
-    paramKey: "fuel_type",
-    options: ["Petrol", "Diesel", "Hybrid", "Electric"],
-  },
-  {
-    type: "checkbox",
-    title: "Transmission",
-    paramKey: "transmission",
-    options: ["Automatic", "Manual"],
-  },
-  {
-    type: "checkbox",
-    title: "Body Type",
-    paramKey: "body_style",
-    options: ["Sedan", "SUV", "Hatchback", "Coupe", "Pickup", "Van"],
-  },
-  {
-    type: "checkbox",
-    title: "Seller Type",
-    paramKey: "seller_type",
-    options: ["Dealer", "Private Seller"],
-  },
-  {
-    type: "checkbox",
-    title: "Condition",
-    paramKey: "condition",
-    options: ["New", "Used", "Certified Pre-Owned"],
-  },
+  { type: "range", title: "Year", paramKeys: ["min_year", "max_year"], min: 2000, max: 2025, step: 1, unit: "" },
+  { type: "range", title: "Price (KSh)", paramKeys: ["min_price", "max_price"], min: 50000, max: 8000000, step: 100000, unit: "KSh" },
+  { type: "range", title: "Mileage (KM)", paramKeys: ["min_mileage", "max_mileage"], min: 0, max: 300000, step: 1000, unit: "KM" },
+  { type: "checkbox", title: "Fuel Type", paramKey: "fuel_type", options: ["Petrol", "Diesel", "Hybrid", "Electric"] },
+  { type: "checkbox", title: "Transmission", paramKey: "transmission", options: ["Automatic", "Manual"] },
+  { type: "checkbox", title: "Body Type", paramKey: "body_style", options: ["Sedan", "SUV", "Hatchback", "Coupe", "Pickup", "Van"] },
+  { type: "checkbox", title: "Seller Type", paramKey: "seller_type", options: ["Dealer", "Private Seller"] },
+  { type: "checkbox", title: "Condition", paramKey: "condition", options: ["New", "Used", "Certified Pre-Owned"] },
 ];
 
+// 🔹 Main Filter Component
 const OtherFilters = ({ filters, setFilters }) => {
-  // 🔹 Range handler
   const handleRangeChange = (newValue, [minKey, maxKey]) => {
     setFilters((prev) => ({
       ...prev,
@@ -117,22 +77,13 @@ const OtherFilters = ({ filters, setFilters }) => {
     }));
   };
 
-  // 🔹 Toggle handler (for checkboxes)
   const handleToggle = (paramKey, value, checked) => {
     setFilters((prev) => {
       const existing = prev?.[paramKey] ? prev[paramKey].split(",") : [];
-      let updated;
-
-      if (checked) {
-        updated = [...existing, value];
-      } else {
-        updated = existing.filter((v) => v !== value);
-      }
-
-      return {
-        ...prev,
-        [paramKey]: updated.length > 0 ? updated.join(",") : undefined,
-      };
+      const updated = checked
+        ? [...existing, value]
+        : existing.filter((v) => v !== value);
+      return { ...prev, [paramKey]: updated.length > 0 ? updated.join(",") : undefined };
     });
   };
 
@@ -144,11 +95,11 @@ const OtherFilters = ({ filters, setFilters }) => {
       {FILTER_CONFIG.map((filter) =>
         filter.type === "range" ? (
           <AccordionSection key={filter.title} title={filter.title}>
-            <RangeFilter
-              label={filter.label}
+            <RangeInput
               min={filter.min}
               max={filter.max}
               step={filter.step}
+              unit={filter.unit}
               value={[
                 filters?.[filter.paramKeys[0]] ?? filter.min,
                 filters?.[filter.paramKeys[1]] ?? filter.max,

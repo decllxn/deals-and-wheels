@@ -1,33 +1,23 @@
-// components/ExploreCars/ExploreCars.jsx
-
 import React from "react";
 import SectionHeader from "./SectionHeader";
 import CarTypeGrid from "./CarTypeGrid";
 import ManufacturerList from "./ManufacturerList";
-import SubBrandList from "./SubBrandList";
-import {
-  carTypes,
-  mainManufacturersData,
-  subBrandsTuningData,
-} from "./carData";
+import { carTypes, manufacturersData } from "./carData";
 
 const ExploreCars = () => {
   return (
     <section
       className="py-20 md:py-28"
-      style={{
-        backgroundColor: "var(--bg-color)",
-        color: "var(--text-color)",
-      }}
+      style={{ backgroundColor: "var(--bg-color)", color: "var(--text-color)" }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <SectionHeader
-          title="Explore Our Extensive Car Library"
-          subtitle="Discover your next vehicle by exploring different types and manufacturers."
+          title="Explore Our Car Library"
+          subtitle="Find your perfect vehicle by browsing car types and trusted manufacturers."
         />
+
         <CarTypeGrid carTypes={carTypes} />
-        <ManufacturerList manufacturers={mainManufacturersData} />
-        <SubBrandList subBrands={subBrandsTuningData} />
+        <ManufacturerList manufacturers={manufacturersData} />
       </div>
     </section>
   );

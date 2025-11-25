@@ -3,7 +3,7 @@ import { Phone, MessageSquare, Star, MapPin, Car } from 'lucide-react';
 
 export default function DealerInfo({ dealer }) {
   return (
-    <div className="flex flex-col items-center text-center gap-5">
+    <div className="flex flex-col items-center text-center">
 
       <div className="w-24 h-24 rounded-full overflow-hidden border border-[var(--border-color)] flex-shrink-0">
         <img src={dealer.logo || 'https://via.placeholder.com/96'} alt={dealer.name} className="object-cover w-full h-full" />

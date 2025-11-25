@@ -1,58 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { FaCar } from "react-icons/fa"; // fallback icon if PNG is missing
+import { motion } from "framer-motion";
 
 const CarTypeGrid = ({ carTypes }) => (
-  <div className="mb-20 md:mb-24">
-    <h3
-      className="text-2xl font-semibold mb-8"
-      style={{ color: "var(--text-color)" }}
-    >
-      Browse by Body Type
+  <div>
+    <h3 className="text-2xl font-semibold mb-6" style={{ color: "var(--text-color)" }}>
+      Explore by Car Type
     </h3>
-
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
-      {carTypes.map((type, index) => (
-        <Link
-          to={`/cars/type/${type.name.toLowerCase()}`}
-          key={index}
-          className="flex flex-col items-center justify-center p-4 md:p-5 rounded-lg transition-all duration-200"
-          style={{
-            backgroundColor: "var(--surface-color)",
-            color: "var(--text-color)",
-            border: "1px solid var(--border-color)",
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--highlight-color)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--surface-color)")
-          }
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      {carTypes.map((type, idx) => (
+        <motion.div
+          key={type.name}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.05 }}
+          className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl backdrop-blur-md bg-white/5 border border-white/10 hover:bg-white/10 transition-all cursor-pointer"
         >
-          <div className="w-12 h-12 mb-3 flex items-center justify-center">
-            {type.iconSrc ? (
-              <img
-                src={type.iconSrc}
-                alt={type.name}
-                className="w-12 h-12 object-contain"
-                style={{ filter: "invert(var(--invert-icons, 0))" }} // 👈 respect theme
-                onError={(e) => {
-                  e.currentTarget.style.display = "none"; // hide broken image
-                  e.currentTarget.parentNode.innerHTML =
-                    `<svg class="w-12 h-12" style="color: var(--text-color);" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h18v-2H3v2zm0 6h18v-2H3v2zm0-12h18V5H3v2z"/></svg>`;
-                }}
-              />
-            ) : (
-              <FaCar className="w-12 h-12" style={{ color: "var(--text-color)" }} />
-            )}
-          </div>
-          <span
-            className="font-medium text-base md:text-lg text-center"
-            style={{ color: "var(--text-color)" }}
-          >
-            {type.name}
-          </span>
-        </Link>
+          <img src={type.iconSrc} alt={type.name} className="w-12 h-12 object-contain" />
+          <span className="text-sm md:text-base font-medium">{type.name}</span>
+        </motion.div>
       ))}
     </div>
   </div>

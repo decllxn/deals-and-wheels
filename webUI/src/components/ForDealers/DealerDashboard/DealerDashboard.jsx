@@ -9,56 +9,76 @@ import DashboardOverview from "./Dashboard/DashboardOverview";
 import DashboardTrendChart from "./Dashboard/DashboardTrendChart";
 import DashboardLeaderboard from "./Dashboard/DashboardLeaderboard";
 
-const API_BASE = "http://127.0.0.1:8000/api/dealer-dashboard/";
+const API_BASE = "http://127.0.0.1:8000/api";
 
-export default function DealerDashboard({ dealerId }) {
-  const { access: authToken, user, isAuthenticated } = useAuth();
+export default function DealerDashboard() {
+  const { access: authToken, isAuthenticated, user } = useAuth();
 
+  const [dealerInfo, setDealerInfo] = useState(null);
+  const [summaryCards, setSummaryCards] = useState(null);
   const [overview, setOverview] = useState(null);
   const [metricsTrend, setMetricsTrend] = useState(null);
-  const [summaryCards, setSummaryCards] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
-  const [dealerInfo, setDealerInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!authToken || !dealerId || !isAuthenticated) return;
+    if (!authToken || !isAuthenticated || !user?.dealer_profile) return;
 
     const headers = { Authorization: `Bearer ${authToken}` };
 
     const fetchAll = async () => {
       try {
-        const [dashboardRes, leaderboardRes, dealerRes] = await Promise.all([
-          axios.get(`${API_BASE}dashboard/`, { headers }),
-          axios.get(`${API_BASE}leaderboard/`, { headers }),
-          axios.get(`${API_BASE}overview/${dealerId}/`, { headers }),
+        setLoading(true);
+
+        // ✅ Fetch dealer info for the logged-in dealer
+        const [dealerRes, dashboardRes, leaderboardRes, overviewRes] = await Promise.all([
+          axios.get(`http://127.0.0.1:8000/dealers/api/dealers/${user.dealer_profile.slug}/`, { headers }),
+          axios.get(`${API_BASE}/dealer-dashboard/dashboard/`, { headers }),
+          axios.get(`${API_BASE}/dealer-dashboard/leaderboard/`, { headers }),
+          axios.get(`${API_BASE}/dealer-dashboard/overview/${user.dealer_profile.id}/`, { headers }),
         ]);
 
-        setOverview(dashboardRes.data.overview);
-        setMetricsTrend(dashboardRes.data.metrics_trend);
+        // ✅ Set state
+        setDealerInfo(dealerRes.data);
         setSummaryCards(dashboardRes.data.summary_cards);
+        setMetricsTrend(dashboardRes.data.metrics_trend);
+        setOverview(overviewRes.data.overview);
         setLeaderboard(leaderboardRes.data.leaderboard);
-        setDealerInfo(dealerRes.data.dealer);
       } catch (err) {
-        console.error("Error fetching dealer dashboard:", err);
+        console.error("❌ Error fetching dealer dashboard:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAll();
-  }, [authToken, dealerId, isAuthenticated]);
+  }, [authToken, isAuthenticated, user]);
 
   if (!isAuthenticated)
-    return <p className="p-6 text-center">Please log in to view the dashboard.</p>;
+    return <p className="p-6 text-center">Please log in to view your dashboard.</p>;
+
+  if (loading)
+    return <p className="p-6 text-center text-[var(--muted-text)]">Loading dashboard...</p>;
 
   return (
     <div className="p-6 space-y-8">
-      {dealerInfo && <DashboardHeader dealer={dealerInfo} />}
+      {/* ✅ Header Section */}
+      {dealerInfo && (
+        <div className="mt-6">
+          <DashboardHeader dealer={dealerInfo} />
+        </div>
+      )}
 
+      {/* ✅ Summary Cards */}
       {summaryCards && <DashboardSummaryCards data={summaryCards} />}
 
+      {/* ✅ Overview */}
       {overview && <DashboardOverview data={overview} />}
 
+      {/* ✅ Metrics Trend Chart */}
       {metricsTrend && <DashboardTrendChart trend={metricsTrend} />}
 
+      {/* ✅ Leaderboard */}
       {leaderboard.length > 0 && <DashboardLeaderboard data={leaderboard} />}
     </div>
   );

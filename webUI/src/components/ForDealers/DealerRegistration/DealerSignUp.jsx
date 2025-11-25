@@ -67,7 +67,7 @@ export default function DealerSignUp() {
 
   return (
     <motion.div
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-8 py-16 overflow-hidden mt-15"
+      className="relative min-h-screen flex flex-col items-center justify-center px-4 md:px-8 py-16 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       style={{

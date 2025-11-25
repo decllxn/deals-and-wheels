@@ -14,7 +14,6 @@ export default function MessageThread() {
     setMessages,
     addMessage,
     quotedMessage,
-    setQuotedMessage,
     clearQuotedMessage,
   } = useChat();
 
@@ -27,7 +26,7 @@ export default function MessageThread() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch messages when conversation changes
+  // Fetch messages
   useEffect(() => {
     if (!access || !currentConversation) return;
 
@@ -48,7 +47,7 @@ export default function MessageThread() {
     fetchMessages();
   }, [access, currentConversation, setMessages]);
 
-  // WebSocket connection
+  // WebSocket setup
   useEffect(() => {
     if (!access || !currentConversation) return;
 
@@ -71,10 +70,7 @@ export default function MessageThread() {
 
   if (!currentConversation)
     return (
-      <div
-        className="flex items-center justify-center h-full text-center text-lg font-medium"
-        style={{ color: "var(--muted-text)" }}
-      >
+      <div className="flex items-center justify-center h-[60vh] text-center text-lg font-medium text-gray-500">
         Select a conversation to start chatting 💬
       </div>
     );
@@ -84,10 +80,13 @@ export default function MessageThread() {
 
   return (
     <div
-      className="flex flex-col h-full rounded-xl shadow-lg border overflow-hidden"
+      className="flex flex-col w-full rounded-xl shadow-lg border overflow-hidden"
       style={{
         backgroundColor: "var(--surface-color)",
         borderColor: "var(--border-color)",
+        // Fixed overall chat height (responsive)
+        height: "calc(100vh - 180px)",
+        maxHeight: "calc(100vh - 180px)",
       }}
     >
       {/* Header */}
@@ -109,18 +108,16 @@ export default function MessageThread() {
         </div>
 
         <div className="flex flex-col">
-          <h2 className="font-semibold text-base" style={{ color: "var(--text-color)" }}>
+          <h2 className="font-semibold text-base text-[var(--text-color)]">
             {chatPartner.email || "Unknown User"}
           </h2>
-          <span className="text-xs" style={{ color: "var(--muted-text)" }}>
-            Active now
-          </span>
+          <span className="text-xs text-[var(--muted-text)]">Active now</span>
         </div>
       </div>
 
       {/* Scrollable message area */}
       <div
-        className="flex-1 p-4 overflow-y-scroll hide-scrollbar flex flex-col space-y-2"
+        className="flex-1 overflow-y-auto px-4 py-3 space-y-2 hide-scrollbar"
         style={{
           backgroundColor: "var(--surface-color)",
         }}
@@ -138,17 +135,14 @@ export default function MessageThread() {
                 className={`flex ${isMine ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm shadow-sm ${
-                    isMine
-                      ? "rounded-br-none"
-                      : "rounded-bl-none"
+                  className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow-sm ${
+                    isMine ? "rounded-br-none" : "rounded-bl-none"
                   }`}
                   style={{
                     backgroundColor: isMine
                       ? "var(--accent-color)"
                       : "var(--highlight-color)",
                     color: isMine ? "#fff" : "var(--text-color)",
-                    alignSelf: isMine ? "flex-end" : "flex-start",
                   }}
                 >
                   {msg.text}
@@ -160,9 +154,9 @@ export default function MessageThread() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input area (fixed at bottom) */}
+      {/* Fixed Input area */}
       <div
-        className="border-t p-3 shrink-0"
+        className="border-t shrink-0 p-3"
         style={{
           borderColor: "var(--border-color)",
           backgroundColor: "var(--bg-color)",

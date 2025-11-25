@@ -58,7 +58,7 @@ export default function CarDetailsHero({ car, dealer }) {
   }, [car?.slug]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10 lg:py-16 mt-20">
+    <div className="max-w-7xl mx-auto px-4 py-10 lg:py-16">
       {/* ✅ Car Title */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-extrabold text-[var(--text-color)] tracking-tight">

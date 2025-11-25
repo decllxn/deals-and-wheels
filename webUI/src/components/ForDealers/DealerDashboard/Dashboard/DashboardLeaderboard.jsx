@@ -7,7 +7,7 @@ export default function DashboardLeaderboard({ data = [] }) {
   if (!data.length)
     return (
       <p
-        className="text-center py-6 text-sm italic"
+        className="text-center py-8 text-sm italic"
         style={{ color: "var(--muted-text)" }}
       >
         No leaderboard data available yet.
@@ -15,59 +15,68 @@ export default function DashboardLeaderboard({ data = [] }) {
     );
 
   return (
-    <div
-      className="p-6 rounded-2xl shadow-md border transition-all duration-300"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="rounded-3xl border shadow-lg overflow-hidden backdrop-blur-sm"
       style={{
-        backgroundColor: "var(--surface-color)",
+        background: "var(--surface-color)",
         borderColor: "var(--border-color)",
-        boxShadow: "0 4px 20px var(--shadow-color, rgba(0,0,0,0.05))",
+        boxShadow: "0 4px 20px var(--shadow-color)",
       }}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h2
-          className="text-2xl font-semibold flex items-center gap-2"
-          style={{ color: "var(--text-color)" }}
-        >
+      {/* Header */}
+      <div
+        className="flex justify-between items-center px-6 py-5 border-b"
+        style={{
+          borderColor: "var(--border-color)",
+          background: "var(--surface-color)",
+        }}
+      >
+        <div className="flex items-center gap-2">
           <Trophy
             size={24}
             style={{
               color: "var(--accent-color)",
-              filter: "drop-shadow(0 0 6px var(--highlight-color))",
+              filter: "drop-shadow(0 0 5px var(--highlight-color))",
             }}
           />
-          Leaderboard
-        </h2>
+          <h2
+            className="text-xl font-semibold"
+            style={{ color: "var(--text-color)" }}
+          >
+            Dealer Leaderboard
+          </h2>
+        </div>
         <span
-          className="text-sm font-medium px-3 py-1 rounded-full"
+          className="text-xs font-medium px-3 py-1 rounded-full uppercase tracking-wide"
           style={{
-            backgroundColor: "var(--highlight-color)",
+            background: "var(--highlight-color)",
             color: "var(--bg-color)",
           }}
         >
-          Top Dealers
+          Top Performers
         </span>
       </div>
 
-      <div className="overflow-x-auto rounded-xl">
-        <table className="min-w-full border-collapse">
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse text-sm">
           <thead>
             <tr
+              className="text-left uppercase text-xs"
               style={{
                 backgroundColor: "var(--bg-color)",
                 borderBottom: `1px solid var(--border-color)`,
+                color: "var(--muted-text)",
               }}
             >
-              {["Rank", "Dealer", "Avg Health", "Avg Sell-Through", "Total Sold"].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-3 text-left text-sm font-semibold uppercase tracking-wide"
-                    style={{ color: "var(--muted-text)" }}
-                  >
-                    {col}
-                  </th>
-                )
-              )}
+              <th className="px-6 py-3 font-medium">Rank</th>
+              <th className="px-6 py-3 font-medium">Dealer</th>
+              <th className="px-6 py-3 text-center font-medium">Avg Health</th>
+              <th className="px-6 py-3 text-center font-medium">Sell-Through</th>
+              <th className="px-6 py-3 text-center font-medium">Total Sold</th>
             </tr>
           </thead>
 
@@ -78,6 +87,7 @@ export default function DashboardLeaderboard({ data = [] }) {
                 "var(--highlight-color)",
                 "var(--muted-text)",
               ];
+
               const rankBadge =
                 index < 3 ? (
                   <Star
@@ -88,38 +98,49 @@ export default function DashboardLeaderboard({ data = [] }) {
                     }}
                   />
                 ) : (
-                  <span style={{ color: "var(--muted-text)" }}>#{index + 1}</span>
+                  <span
+                    className="font-semibold"
+                    style={{ color: "var(--muted-text)" }}
+                  >
+                    #{index + 1}
+                  </span>
                 );
 
               return (
                 <motion.tr
-                  key={d.dealer_id}
+                  key={d.dealer_id || index}
                   whileHover={{
                     backgroundColor: "var(--highlight-color)",
-                    color: "var(--bg-color)",
-                    scale: 1.01,
+                    scale: 1.005,
                   }}
                   transition={{ duration: 0.2 }}
-                  className="cursor-pointer border-b last:border-0"
+                  className="border-b last:border-0 transition-all duration-200 cursor-pointer"
                   style={{
                     borderColor: "var(--border-color)",
-                    backgroundColor: "var(--surface-color)",
+                    background: "var(--surface-color)",
                   }}
                 >
-                  <td className="px-4 py-3 font-medium flex items-center gap-2">
+                  <td className="px-6 py-4 flex items-center gap-3 font-medium">
                     {rankBadge}
-                    {d.dealer_name}
+                    <span style={{ color: "var(--text-color)" }}>
+                      {d.dealer_name}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-center font-mono">
-                    {(d.avg_health_score * 100).toFixed(2)}%
+
+                  <td className="px-6 py-4 text-center font-mono text-sm">
+                    {(d.avg_health_score * 100).toFixed(1)}%
                   </td>
-                  <td className="px-4 py-3 text-center font-mono">
-                    {(d.avg_sell_through_rate * 100).toFixed(2)}%
+
+                  <td className="px-6 py-4 text-center font-mono text-sm">
+                    {(d.avg_sell_through_rate * 100).toFixed(1)}%
                   </td>
-                  <td className="px-4 py-3 text-center font-semibold flex items-center justify-center gap-1">
+
+                  <td className="px-6 py-4 text-center font-semibold flex items-center justify-center gap-1">
                     <TrendingUp
                       size={16}
-                      style={{ color: "var(--accent-color)" }}
+                      style={{
+                        color: "var(--accent-color)",
+                      }}
                     />
                     {d.total_sold}
                   </td>
@@ -129,6 +150,14 @@ export default function DashboardLeaderboard({ data = [] }) {
           </tbody>
         </table>
       </div>
-    </div>
+
+      {/* Footer summary */}
+      <div
+        className="px-6 py-3 text-xs text-right border-t"
+        style={{ color: "var(--muted-text)", borderColor: "var(--border-color)" }}
+      >
+        Updated in real-time • {new Date().toLocaleDateString()}
+      </div>
+    </motion.div>
   );
 }
