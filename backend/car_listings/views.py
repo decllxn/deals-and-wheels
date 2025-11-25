@@ -1,4 +1,3 @@
-# vehicles/views.py
 from rest_framework import viewsets, status, filters as rf_filters, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +6,7 @@ from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 import logging
 
 from .models import (
@@ -28,8 +28,9 @@ from .serializers import (
     CarListingVideoWalkaroundSerializer,
     CarListingSuggestionSerializer,
 )
-from .filters import CarListingFilter  # optional — you can add later
-from . import utils  # optional — for search analytics, similar listings, etc.
+from .filters import CarListingFilter
+from . import utils
+from .permissions import IsDealerOrAdmin  # Custom permission
 
 logger = logging.getLogger(__name__)
 
@@ -48,21 +49,23 @@ class CarListingPagination(PageNumberPagination):
 # ----------------------------------------
 class CarListingViewSet(viewsets.ModelViewSet):
     """
-    A full CRUD ViewSet for Car Listings with filtering, ordering, and search.
+    Full CRUD for Car Listings with filtering, search, ordering,
+    and dealer-specific endpoints.
     """
     queryset = (
         CarListing.objects.all()
         .select_related("manufacturer", "dealer", "seller")
-        .prefetch_related("images", "features", "equipment", "modifications", "known_flaws", "videos")
+        .prefetch_related(
+            "images", "features", "equipment", "modifications", "known_flaws", "videos"
+        )
         .order_by("-created_at")
     )
     serializer_class = CarListingSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsDealerOrAdmin]  # Only dealers or admin can create/edit/delete
     pagination_class = CarListingPagination
 
-    # Filters and ordering
     filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    filterset_class = CarListingFilter  # optional
+    filterset_class = CarListingFilter
     search_fields = ["title", "make", "model", "description", "location"]
     ordering_fields = ["price", "year", "created_at", "mileage"]
     ordering = ["-created_at"]
@@ -77,7 +80,7 @@ class CarListingViewSet(viewsets.ModelViewSet):
         return context
 
     # ----------------------------------------
-    # Object retrieval (safe slug support)
+    # Object retrieval (supports slug with ID)
     # ----------------------------------------
     def get_object(self):
         lookup_value = self.kwargs.get(self.lookup_field)
@@ -91,11 +94,9 @@ class CarListingViewSet(viewsets.ModelViewSet):
     # Creation
     # ----------------------------------------
     def perform_create(self, serializer):
-        """
-        Automatically assigns the logged-in user as seller (and dealer if exists)
-        """
-        user = self.request.user if self.request.user.is_authenticated else None
-        serializer.save(seller=user)
+        user = self.request.user
+        dealer = getattr(user, "dealer_profile", None)
+        serializer.save(seller=user, dealer=dealer)
         logger.info(f"✅ New listing created by {user}: {serializer.instance.slug}")
 
     # ----------------------------------------
@@ -104,7 +105,6 @@ class CarListingViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         search_term = self.request.query_params.get("search")
-
         if search_term:
             if hasattr(utils, "track_search"):
                 utils.track_search(search_term)
@@ -112,7 +112,6 @@ class CarListingViewSet(viewsets.ModelViewSet):
             for field in self.search_fields:
                 q |= Q(**{f"{field}__icontains": search_term})
             queryset = queryset.filter(q)
-
         return queryset
 
     # ----------------------------------------
@@ -160,7 +159,6 @@ class CarListingViewSet(viewsets.ModelViewSet):
     def lowest_mileage(self, request):
         return self._paginate_response(self.get_queryset().order_by("mileage"))
 
-    
     @action(detail=False, methods=["get"], url_path="search")
     def search_listings(self, request):
         query = request.query_params.get("q")
@@ -179,18 +177,46 @@ class CarListingViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(page or results, many=True)
         return self.get_paginated_response(serializer.data) if page else Response(serializer.data)
 
+    @action(detail=False, methods=["get"], url_path="my", permission_classes=[IsAuthenticated])
+    def my_listings(self, request):
+        user = request.user
+        dealer = getattr(user, "dealer_profile", None)
+        if not dealer:
+            return Response(
+                {"detail": "You are not associated with a dealer profile."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        listings = self.get_queryset().filter(dealer=dealer)
+        page = self.paginate_queryset(listings)
+        serializer = self.get_serializer(page or listings, many=True)
+        return self.get_paginated_response(serializer.data) if page else Response(serializer.data)
+
 
 # ----------------------------------------
-# Related Models ViewSets
+# Base Related Model ViewSet
 # ----------------------------------------
 class BaseCarListingRelatedViewSet(viewsets.ModelViewSet):
-    """
-    Base class for related model viewsets
-    """
     filter_backends = [DjangoFilterBackend, rf_filters.SearchFilter, rf_filters.OrderingFilter]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     search_fields = ["name"]
     filterset_fields = ["car_listing"]
+    permission_classes = [IsDealerOrAdmin]  # Only dealer owner or admin can modify
+
+    def perform_create(self, serializer):
+        # Ensure the user can only add items to their own listing
+        car_listing = serializer.validated_data.get("car_listing")
+        user = self.request.user
+        if not car_listing.dealer == getattr(user, "dealer_profile", None) and not user.is_staff:
+            raise permissions.PermissionDenied("You cannot add items to this listing.")
+        serializer.save()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        if not user.is_staff:
+            # Only return related items for listings owned by the dealer
+            queryset = queryset.filter(car_listing__dealer=getattr(user, "dealer_profile", None))
+        return queryset
 
 
 class CarListingImageViewSet(BaseCarListingRelatedViewSet):
@@ -226,7 +252,7 @@ class CarListingVideoWalkaroundViewSet(BaseCarListingRelatedViewSet):
 
 
 # ----------------------------------------
-# Popular Tags / Suggestions (optional)
+# Popular Tags / Suggestions
 # ----------------------------------------
 class PopularTagsView(APIView):
     def get(self, request, *args, **kwargs):

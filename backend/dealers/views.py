@@ -1,18 +1,25 @@
-# dealers/views.py
-from rest_framework import viewsets, generics, status, decorators, response, filters, permissions
-from django.db.models import Avg
+from rest_framework import (
+    viewsets,
+    generics,
+    status,
+    decorators,
+    response,
+    filters,
+    permissions,
+)
+from django.db.models import Avg, Prefetch
 from django.contrib.auth import get_user_model
 
 from .models import Dealer, DealerRating
 from .serializers import DealerSerializer, DealerRatingSerializer, DealerSignupSerializer
-from car_listings.models import CarListing
+from car_listings.models import CarListing, CarListingImage, CarListingFeature, CarListingEquipment, CarListingModification, CarListingKnownFlaw, CarListingVideoWalkaround
 from car_listings.serializers import CarListingSerializer
 
 User = get_user_model()
 
 
 # ============================================================
-# 1️⃣ Dealer Signup View
+# 1️⃣ Dealer Signup
 # ============================================================
 class DealerSignupView(generics.CreateAPIView):
     serializer_class = DealerSignupSerializer
@@ -34,53 +41,98 @@ class DealerSignupView(generics.CreateAPIView):
 # ============================================================
 # 2️⃣ Dealer ViewSet
 # ============================================================
-class DealerViewSet(viewsets.ModelViewSet):
-    queryset = Dealer.objects.all().order_by("-created_at")
+class DealerViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DealerSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["name", "address", "description", "website"]
-    ordering_fields = [
-        "name",
-        "average_rating",
-        "rating_count",
-        "cars_listed_count",
-        "cars_sold_count",
-        "created_at",
-    ]
+    search_fields = ["name", "address", "description", "website", "company_name"]
+    ordering_fields = ["name", "average_rating", "rating_count", "created_at"]
+    lookup_field = "slug"
+    lookup_url_kwarg = "slug"
 
-    lookup_field = "name"
-    lookup_url_kwarg = "name"
+    def get_queryset(self):
+        """Optimized queryset with nested prefetch for car listings."""
+        return (
+            Dealer.objects.select_related("user")
+            .prefetch_related(
+                Prefetch(
+                    "car_listings",
+                    queryset=CarListing.objects.prefetch_related(
+                        "images",
+                        "features",
+                        "equipment",
+                        "modifications",
+                        "known_flaws",
+                        "videos",
+                    ).select_related("manufacturer")
+                ),
+                Prefetch(
+                    "ratings",
+                    queryset=DealerRating.objects.only("id", "rating")
+                ),
+            )
+            .order_by("-created_at")
+        )
 
     # -----------------------------
-    # Dealer Ratings
+    # /api/dealers/me/
+    # -----------------------------
+    @decorators.action(
+        detail=False,
+        methods=["get", "patch"],
+        url_path="me",
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def me(self, request):
+        try:
+            dealer = Dealer.objects.get(user=request.user)
+        except Dealer.DoesNotExist:
+            return response.Response(
+                {"detail": "No dealer profile associated with this account."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if request.method == "GET":
+            serializer = self.get_serializer(dealer, context={"request": request})
+            return response.Response(serializer.data)
+        elif request.method == "PATCH":
+            serializer = self.get_serializer(
+                dealer, data=request.data, partial=True, context={"request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+
+    # -----------------------------
+    # /api/dealers/<slug>/ratings/
     # -----------------------------
     @decorators.action(detail=True, methods=["get"])
-    def ratings(self, request, name=None):
+    def ratings(self, request, slug=None):
         dealer = self.get_object()
-        ratings = dealer.ratings.all()
+        ratings = dealer.ratings.select_related("user").all()
         serializer = DealerRatingSerializer(ratings, many=True)
         return response.Response(serializer.data, status=status.HTTP_200_OK)
 
+    # /api/dealers/<slug>/rate/
     @decorators.action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
-    def rate(self, request, name=None):
+    def rate(self, request, slug=None):
         dealer = self.get_object()
         serializer = DealerRatingSerializer(data=request.data, context={"request": request})
-        if serializer.is_valid():
-            rating_obj, created = DealerRating.objects.update_or_create(
-                dealer=dealer,
-                user=request.user,
-                defaults={
-                    "rating": serializer.validated_data["rating"],
-                    "comment": serializer.validated_data.get("comment", ""),
-                },
-            )
-            self.update_dealer_rating(dealer)
-            return response.Response(
-                DealerRatingSerializer(rating_obj).data,
-                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
-            )
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+
+        rating_obj, created = DealerRating.objects.update_or_create(
+            dealer=dealer,
+            user=request.user,
+            defaults={
+                "rating": serializer.validated_data["rating"],
+                "comment": serializer.validated_data.get("comment", ""),
+            },
+        )
+        self.update_dealer_rating(dealer)
+        return response.Response(
+            DealerRatingSerializer(rating_obj).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
     def update_dealer_rating(self, dealer):
         agg = dealer.ratings.aggregate(avg=Avg("rating"))
@@ -90,46 +142,64 @@ class DealerViewSet(viewsets.ModelViewSet):
 
 
 # ============================================================
-# 3️⃣ Dealer Rating ViewSet
+# 3️⃣ Dealer Ratings (Global)
 # ============================================================
 class DealerRatingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = DealerRating.objects.select_related("dealer", "user").order_by("-created_at")
     serializer_class = DealerRatingSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["dealer__name", "user__email", "comment"]
+    search_fields = ["dealer__name", "dealer__slug", "user__email", "comment"]
     ordering_fields = ["rating", "created_at"]
 
 
 # ============================================================
-# 4️⃣ Dealer Listings (for a specific dealer)
+# 4️⃣ Dealer Listings (By Slug)
 # ============================================================
 class DealerListingsView(generics.ListAPIView):
-    """
-    Returns all car listings for a specific dealer.
-    Example: /api/dealers/5/listings/
-    """
     serializer_class = CarListingSerializer
-    permission_classes = [permissions.AllowAny]  # or IsAuthenticated if needed
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        dealer_id = self.kwargs.get("dealer_id")
-        return CarListing.objects.filter(dealer_id=dealer_id).select_related("dealer", "manufacturer")
+        slug = self.kwargs.get("slug")
+        return (
+            CarListing.objects.filter(dealer__slug=slug)
+            .select_related("dealer", "manufacturer")
+            .prefetch_related(
+                "images",
+                "features",
+                "equipment",
+                "modifications",
+                "known_flaws",
+                "videos",
+            )
+            .order_by("-created_at")
+        )
 
 
 # ============================================================
-# 5️⃣ Logged-in Dealer's Listings (for dealer dashboard)
+# 5️⃣ My Dealer Listings (Logged-in)
 # ============================================================
 class MyDealerListingsView(generics.ListAPIView):
-    """
-    Returns listings for the currently authenticated dealer.
-    Example: /api/dealers/my/listings/
-    """
     serializer_class = CarListingSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        if hasattr(user, "dealer_profile"):
-            return CarListing.objects.filter(dealer=user.dealer_profile).select_related("dealer", "manufacturer")
-        return CarListing.objects.none()
+        try:
+            dealer = Dealer.objects.get(user=self.request.user)
+        except Dealer.DoesNotExist:
+            return CarListing.objects.none()
+
+        return (
+            CarListing.objects.filter(dealer=dealer)
+            .select_related("dealer", "manufacturer")
+            .prefetch_related(
+                "images",
+                "features",
+                "equipment",
+                "modifications",
+                "known_flaws",
+                "videos",
+            )
+            .order_by("-created_at")
+        )

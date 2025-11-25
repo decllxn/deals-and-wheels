@@ -10,6 +10,9 @@ from django.db import transaction
 from django.utils import timezone
 from .models import Plan, Subscription, Invoice, PaymentTransaction
 
+# PayPal provider import
+from .payments.paypal_provider import create_paypal_payment, execute_paypal_payment
+
 logger = logging.getLogger(__name__)
 
 
@@ -182,6 +185,62 @@ def process_payment_failure(transaction, reason="Payment failed"):
     logger.warning(f"⚠️ Payment failed for transaction {transaction.id}: {reason}")
     transaction.mark_failed(reason)
     return transaction
+
+
+# =========================================================
+# PAYPAL PAYMENT SERVICES
+# =========================================================
+
+def initiate_paypal_payment(subscription, request):
+    """
+    Create a PayPal payment and return the approval URL.
+    """
+    logger.info(f"💰 Initiating PayPal payment for subscription {subscription.id}")
+    
+    amount = subscription.plan.price
+    return_url = request.build_absolute_uri("/api/billing/paypal/execute/")
+    cancel_url = request.build_absolute_uri("/api/billing/paypal/cancel/")
+
+    approval_url, payment_id = create_paypal_payment(amount, return_url, cancel_url)
+    
+    # Record a pending transaction
+    tx = PaymentTransaction.objects.create(
+        subscription=subscription,
+        amount=amount,
+        currency=subscription.plan.currency,
+        provider="paypal",
+        provider_payment_id=payment_id,
+        status=PaymentTransaction.STATUS_PENDING,
+        created_at=timezone.now(),
+    )
+    
+    logger.info(f"🧾 PayPal transaction {tx.id} created for subscription {subscription.id}")
+    return approval_url, tx
+
+
+def finalize_paypal_payment(payment_id, payer_id):
+    """
+    Execute a PayPal payment after user approval.
+    """
+    logger.info(f"⚙️ Finalizing PayPal payment: {payment_id}")
+    
+    payment = execute_paypal_payment(payment_id, payer_id)
+    tx = PaymentTransaction.objects.filter(provider_payment_id=payment_id).first()
+    
+    if not tx:
+        logger.warning(f"⚠️ No transaction found for PayPal payment {payment_id}")
+        return None
+
+    if payment.state == "approved":
+        tx.status = PaymentTransaction.STATUS_SUCCESS
+        tx.save(update_fields=["status"])
+        process_payment_success(tx)
+    else:
+        tx.status = PaymentTransaction.STATUS_FAILED
+        tx.save(update_fields=["status"])
+        process_payment_failure(tx, reason="PayPal payment not approved")
+
+    return tx
 
 
 # =========================================================

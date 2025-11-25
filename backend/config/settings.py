@@ -308,22 +308,27 @@ CELERY_CACHE_BACKEND = "default"
 CELERY_BEAT_SCHEDULE = {
     "generate_monthly_invoices": {
         "task": "billing.tasks.generate_monthly_invoices",
-        "schedule": crontab(day_of_month=1, hour=0, minute=0),  # Every 1st of month
+        "schedule": crontab(day_of_month=1, hour=0, minute=0),
     },
     "process_recurring_payments": {
         "task": "billing.tasks.process_recurring_payments",
-        "schedule": crontab(hour=0, minute=0),  # Daily
+        "schedule": crontab(hour=0, minute=0),
     },
     "sync_subscription_statuses": {
         "task": "billing.tasks.sync_subscription_statuses",
-        "schedule": crontab(hour=1, minute=0),  # Daily at 1 AM
+        "schedule": crontab(hour=1, minute=0),
     },
     "retry_failed_payments": {
         "task": "billing.tasks.retry_failed_payments",
-        "schedule": crontab(hour="*/6", minute=0),  # Every 6 hours
+        "schedule": crontab(hour="*/6", minute=0),
+    },
+
+    # 🚗 Dealer metrics task
+    "compute_daily_dealer_metrics": {
+        "task": "dealer_dashboard.tasks.compute_daily_metrics_for_date",
+        "schedule": crontab(hour=0, minute=30),
     },
 }
-
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # prints to terminal
 DEFAULT_FROM_EMAIL = "Deals & Wheels <no-reply@dealsandwheels.com>"
 
@@ -333,3 +338,11 @@ MPESA_CONSUMER_SECRET = config("MPESA_CONSUMER_SECRET", default="")
 MPESA_SHORTCODE = config("MPESA_SHORTCODE", default="174379")
 MPESA_PASSKEY = config("MPESA_PASSKEY", default="")
 MPESA_CALLBACK_URL = config("MPESA_CALLBACK_URL", default="")
+
+APPEND_SLASH = False
+
+
+PAYPAL_CLIENT_ID = config("PAYPAL_CLIENT_ID")
+PAYPAL_SECRET = config("PAYPAL_SECRET")
+PAYPAL_MODE = config("PAYPAL_MODE")
+PAYPAL_WEBHOOK_ID = config("PAYPAL_WEBHOOK_ID")

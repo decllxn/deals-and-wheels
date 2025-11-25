@@ -1,4 +1,11 @@
-# billing/views.py
+"""
+billing/views.py
+--------------------
+ViewSets for billing, subscription, and payment handling.
+Includes PayPal integration for initiating and finalizing payments.
+"""
+
+import logging
 from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -19,6 +26,8 @@ from .serializers import (
     PaymentTransactionSerializer,
 )
 from . import services
+
+logger = logging.getLogger(__name__)
 
 
 # --------------------------------------------------------
@@ -101,6 +110,49 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             "current_period_end": renewed.current_period_end,
         })
 
+    # --------------------------------------------------------
+    # PAYPAL PAYMENT ACTIONS
+    # --------------------------------------------------------
+    @action(detail=True, methods=["post"], url_path="paypal/start")
+    def start_paypal_payment(self, request, pk=None):
+        """
+        Initiate a PayPal payment for this subscription.
+        """
+        subscription = self.get_object()
+
+        try:
+            approval_url, tx = services.initiate_paypal_payment(subscription, request)
+            return Response({
+                "approval_url": approval_url,
+                "transaction_id": tx.id,
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.exception(f"❌ Failed to initiate PayPal payment: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=["get"], url_path="paypal/execute")
+    def execute_paypal_payment(self, request):
+        """
+        Handle PayPal redirect after approval.
+        """
+        payment_id = request.query_params.get("paymentId")
+        payer_id = request.query_params.get("PayerID")
+
+        if not payment_id or not payer_id:
+            return Response({"error": "Missing PayPal payment parameters."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        tx = services.finalize_paypal_payment(payment_id, payer_id)
+
+        if not tx:
+            return Response({"error": "Transaction not found."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        return Response({
+            "message": "Payment executed successfully.",
+            "transaction": PaymentTransactionSerializer(tx, context={"request": request}).data,
+        }, status=status.HTTP_200_OK)
+
 
 # --------------------------------------------------------
 # INVOICE VIEWSET
@@ -128,11 +180,11 @@ class PaymentTransactionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return PaymentTransaction.objects.filter(user=self.request.user)
+        return PaymentTransaction.objects.filter(subscription__user=self.request.user)
 
     def perform_create(self, serializer):
-        transaction = serializer.save(user=self.request.user)
-        # Provider initiation logic (e.g., create checkout session) can go here
+        transaction = serializer.save()
+        # Placeholder for initiating actual payment provider flow if needed.
         return transaction
 
     # -------------------------------

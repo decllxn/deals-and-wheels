@@ -58,10 +58,10 @@ else
 fi
 
 # ---------- VIRTUAL ENV ----------
-if [ -f "venv/bin/activate" ]; then
+if [ -f "../venv/bin/activate" ]; then
     echo ""
     echo -e "${YELLOW}Activating virtual environment...${RESET}"
-    source venv/bin/activate
+    source ../venv/bin/activate
 else
     echo ""
     echo -e "${RED}No virtual environment found (expected ./venv/).${RESET}"

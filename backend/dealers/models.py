@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.conf import settings
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class Dealer(models.Model):
@@ -20,6 +21,12 @@ class Dealer(models.Model):
 
     # 2️⃣ Business information
     name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        help_text="Auto-generated slug for dealer URLs."
+    )
     company_name = models.CharField(max_length=255, blank=True, null=True)
     business_type = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -53,6 +60,23 @@ class Dealer(models.Model):
         return self.name or f"Dealer ({self.user.email})"
 
     # -----------------------------
+    # 🔹 Slug Auto-generation
+    # -----------------------------
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+
+            # Ensure unique slug
+            while Dealer.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    # -----------------------------
     # Derived & utility properties
     # -----------------------------
     @property
@@ -64,13 +88,8 @@ class Dealer(models.Model):
     # Business logic
     # -----------------------------
     def update_stats(self):
-        """
-        Recalculate key dealer stats from related CarListing data.
-        Should be called whenever a listing is created or marked sold.
-        """
-        # Lazy import to prevent circular dependency
-        from listings.models import CarListing
-
+        """Recalculate key dealer stats from related CarListing data."""
+        from car_listings.models import CarListing  # lazy import
         total_listed = CarListing.objects.filter(dealer=self).count()
         total_sold = CarListing.objects.filter(dealer=self, is_sold=True).count()
 
@@ -83,6 +102,8 @@ class Dealer(models.Model):
         self.is_verified = True
         self.verification_date = timezone.now()
         self.save(update_fields=["is_verified", "verification_date"])
+
+
 
 
 # -------------------------------------------------------------------

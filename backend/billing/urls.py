@@ -1,27 +1,21 @@
-# billing/urls.py
+"""
+billing.urls
+-------------
+Main routing for the billing app — includes API endpoints and webhooks.
+"""
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    PlanViewSet,
-    BillingCustomerViewSet,
-    SubscriptionViewSet,
-    InvoiceViewSet,
-    PaymentTransactionViewSet,
-)
+from . import views
 
-# --------------------------------------------------------
-# ROUTER SETUP
-# --------------------------------------------------------
 router = DefaultRouter()
-router.register(r'plans', PlanViewSet, basename='plan')
-router.register(r'customers', BillingCustomerViewSet, basename='billing-customer')
-router.register(r'subscriptions', SubscriptionViewSet, basename='subscription')
-router.register(r'invoices', InvoiceViewSet, basename='invoice')
-router.register(r'transactions', PaymentTransactionViewSet, basename='transaction')
+router.register(r"plans", views.PlanViewSet, basename="plan")
+router.register(r"customers", views.BillingCustomerViewSet, basename="customer")
+router.register(r"subscriptions", views.SubscriptionViewSet, basename="subscription")
+router.register(r"invoices", views.InvoiceViewSet, basename="invoice")
+router.register(r"transactions", views.PaymentTransactionViewSet, basename="transaction")
 
-# --------------------------------------------------------
-# URL PATTERNS
-# --------------------------------------------------------
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
+    path("webhooks/", include("billing.webhooks.urls", namespace="webhooks")),
 ]

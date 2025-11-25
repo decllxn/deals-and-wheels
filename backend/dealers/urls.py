@@ -8,22 +8,26 @@ from .views import (
     MyDealerListingsView,
 )
 
-# 🔹 Router for viewsets
+# ============================================================
+# 🔹 Router for viewsets (handles /api/dealers/, /api/dealer-ratings/, etc.)
+# ============================================================
 router = DefaultRouter()
 router.register(r"dealers", DealerViewSet, basename="dealer")
 router.register(r"dealer-ratings", DealerRatingViewSet, basename="dealer-rating")
 
-# 🔹 Custom endpoints for listings
+# ============================================================
+# 🔹 Custom endpoints
+# ============================================================
 urlpatterns = [
-    # Dealer registration endpoint
-    path("signup/", DealerSignupView.as_view(), name="dealer-signup"),
+    # Dealer signup
+    path("dealers/signup/", DealerSignupView.as_view(), name="dealer-signup"),
 
-    # Listings belonging to a specific dealer (public)
-    path("dealers/<int:dealer_id>/listings/", DealerListingsView.as_view(), name="dealer-listings"),
+    # Public dealer listings (by slug)
+    path("dealers/<slug:slug>/listings/", DealerListingsView.as_view(), name="dealer-listings"),
 
-    # Logged-in dealer's own listings (private)
-    path("my/listings/", MyDealerListingsView.as_view(), name="my-dealer-listings"),
+    # Logged-in dealer’s own listings (dashboard)
+    path("dealers/my/listings/", MyDealerListingsView.as_view(), name="my-dealer-listings"),
 
-    # Include router-based endpoints (dealers + ratings)
+    # Include router-based endpoints (dealers/, dealer-ratings/, etc.)
     path("", include(router.urls)),
 ]

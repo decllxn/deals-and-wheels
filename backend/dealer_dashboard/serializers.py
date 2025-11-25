@@ -4,11 +4,13 @@ from django.utils import timezone
 from rest_framework import serializers
 
 from .models import DealerDailyMetrics
-from dealers.serializers import DealerSerializer
 
 
+# -------------------------------------------------------------------
+# 🔹 1️⃣ Daily Metrics Serializer
+# -------------------------------------------------------------------
 class DealerDailyMetricsSerializer(serializers.ModelSerializer):
-    """Serialize daily metrics for time-series data and trend charts."""
+    """Serialize daily performance metrics for dealers (used in charts & trends)."""
 
     sell_through_display = serializers.FloatField(read_only=True)
 
@@ -29,10 +31,13 @@ class DealerDailyMetricsSerializer(serializers.ModelSerializer):
         ]
 
 
+# -------------------------------------------------------------------
+# 🔹 2️⃣ Dealer Overview Serializer
+# -------------------------------------------------------------------
 class DealerOverviewSerializer(serializers.Serializer):
     """
-    Summarizes dealer performance for dashboard.
-    Provides today's KPIs and last 30 days trend data.
+    Summarizes dealer performance for dashboard KPIs.
+    Returns today's snapshot and the last 30 days for trend data.
     """
 
     today = serializers.SerializerMethodField()
@@ -74,19 +79,30 @@ class DealerOverviewSerializer(serializers.Serializer):
         return DealerDailyMetricsSerializer(metrics, many=True).data
 
 
+# -------------------------------------------------------------------
+# 🔹 3️⃣ Main Dashboard Serializer
+# -------------------------------------------------------------------
 class DealerDashboardSerializer(serializers.Serializer):
     """
-    Aggregated dashboard view for a single dealer.
-    Combines dealer info, KPI snapshot, charts, and summary cards.
+    Aggregated dashboard view for a dealer.
+    Combines dealer info, KPI snapshot, charts, and 30-day summaries.
     """
 
-    dealer = DealerSerializer(read_only=True)
+    # Lazy import prevents circular dependency
+    def __init__(self, *args, **kwargs):
+        from dealers.serializers import DealerSerializer
+        super().__init__(*args, **kwargs)
+        self.fields["dealer"] = DealerSerializer(read_only=True)
+
     overview = serializers.SerializerMethodField()
     metrics_trend = serializers.SerializerMethodField()
     summary_cards = serializers.SerializerMethodField()
 
+    # -----------------------------
+    # Overview (today's KPIs)
+    # -----------------------------
     def get_overview(self, dealer):
-        """Top-level metrics shown in dashboard cards (today's KPIs)."""
+        """Today's key metrics displayed in summary cards."""
         today_data = DealerOverviewSerializer().get_today(dealer)
         return {
             "health_score": today_data.get("health_score", 0),
@@ -96,8 +112,11 @@ class DealerDashboardSerializer(serializers.Serializer):
             "sell_through": today_data.get("sell_through_display", 0),
         }
 
+    # -----------------------------
+    # Trend Data (30-day charts)
+    # -----------------------------
     def get_metrics_trend(self, dealer):
-        """30-day metrics trend for charts."""
+        """Return metrics formatted for charts (e.g., line graphs)."""
         data = DealerOverviewSerializer().get_last_30_days(dealer)
         return {
             "dates": [item["date"] for item in data],
@@ -106,8 +125,11 @@ class DealerDashboardSerializer(serializers.Serializer):
             "avg_prices": [float(item["avg_price"] or 0) for item in data],
         }
 
+    # -----------------------------
+    # Summary Cards (30-day aggregates)
+    # -----------------------------
     def get_summary_cards(self, dealer):
-        """Summary aggregates for the last 30 days."""
+        """Compute aggregates for the last 30 days (totals & averages)."""
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=30)
         qs = DealerDailyMetrics.objects.filter(
