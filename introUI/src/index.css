@@ -1,0 +1,35 @@
+@theme {
+  /* -----------------------------
+     🎨 Custom Color Palette
+     Tailwind v4+ — Theme Variables
+  ------------------------------ */
+
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+
+  --color-text: #000000;
+
+  --color-accent: #4B2E15;         /* Espresso brown */
+  --color-accent-hover: #6B4220;
+  --color-highlight: #B68B60;
+
+  --color-border: #EAEAEA;
+  --color-muted-text: #555555;
+
+  --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Example of Tailwind-style tokens */
+  --color-mint-500: oklch(0.72 0.11 178);
+}
+
+@import "tailwindcss";
+
+/* -----------------------------
+   🅰️ Global Styles
+------------------------------ */
+
+body {
+  font-family: "Open Sans", sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
