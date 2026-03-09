@@ -67,6 +67,7 @@ class Subscription(models.Model):
     STATUS_PAST_DUE = "past_due"
     STATUS_CANCELLED = "cancelled"
     STATUS_UNPAID = "unpaid"
+    STATUS_EXPIRED = "expired"
 
     STATUS_CHOICES = (
         (STATUS_ACTIVE, "Active"),
@@ -74,6 +75,7 @@ class Subscription(models.Model):
         (STATUS_PAST_DUE, "Past due"),
         (STATUS_CANCELLED, "Cancelled"),
         (STATUS_UNPAID, "Unpaid"),
+        (STATUS_EXPIRED, "Expired")
     )
 
     user = models.ForeignKey(AUTH_USER, on_delete=models.CASCADE, related_name="subscriptions")
